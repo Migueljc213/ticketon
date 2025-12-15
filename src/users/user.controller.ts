@@ -2,11 +2,13 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Inject,
   Logger,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateUserToken } from './user.token';
 import type IUsecase from 'src/common/interfaces/IUseCase';
@@ -38,5 +40,11 @@ export default class UserController {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async findUser(@Query() input: FindUserUseCaSeInputDto): Promise<FindUserUserCaseOutput>{
+
   }
 }

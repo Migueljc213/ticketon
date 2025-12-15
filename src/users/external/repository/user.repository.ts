@@ -13,4 +13,8 @@ export default class UserRepository implements IUserRepository {
   async create(input: Partial<User>): Promise<User> {
     return this.repository.save(input);
   }
+
+  async findByEmail(input: Partial<User>): Promise<User | null> {
+    return this.repository.findOneBy({ email: input.email });
+  }
 }
