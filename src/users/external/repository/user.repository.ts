@@ -14,7 +14,28 @@ export default class UserRepository implements IUserRepository {
     return this.repository.save(input);
   }
 
-  async findByEmail(input: Partial<User>): Promise<User | null> {
-    return this.repository.findOneBy({ email: input.email });
+  async findById(id: number): Promise<User | null> {
+    return this.repository.findOne({ where: { id } });
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.repository.findOne({ where: { email } });
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.repository.find();
+  }
+
+  async update(id: number, input: Partial<User>): Promise<User> {
+    await this.repository.update(id, input);
+    const updatedUser = await this.findById(id);
+    if (!updatedUser) {
+      throw new Error('User not found after update');
+    }
+    return updatedUser;
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.repository.delete(id);
   }
 }

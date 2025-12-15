@@ -1,9 +1,5 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import type IUserRepository from '../domain/interface/user.repository.interface';
 import { UserRepositoryToken } from '../user.token';
 import IUsecase from 'src/common/interfaces/IUseCase';
@@ -19,29 +15,26 @@ export default class CreateUserUseCase
   constructor(
     @Inject(UserRepositoryToken) private readonly repository: IUserRepository,
   ) {}
+
   async run(
     input: CreateUserUseCaseInputDto,
   ): Promise<CreateUserUseCaseOutput> {
-    this.logger.log('Starting CreateUseCase', input);
+    this.logger.log('Starting CreateUseCase', input.email);
 
-    const userAlreadyExist = await this.repository.findByEmail({
-      email: input.email,
-    });
-
-    if (userAlreadyExist) {
-      this.logger.log('User Already Registered');
-      throw new BadRequestException('User Already Exists');
+    // Check if user already exists
+    const existingUser = await this.repository.findByEmail(input.email);
+    if (existingUser) {
+      throw new Error('User with this email already exists');
     }
 
-    const passwordHash = await this.generatePassword(input.password);
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(input.password, saltRounds);
 
+    // Create user with hashed password
     return this.repository.create({
       ...input,
-      password: passwordHash,
+      password: hashedPassword,
     });
-  }
-
-  async generatePassword(password: string): Promise<string> {
-    return await argon2.hash(password);
   }
 }
