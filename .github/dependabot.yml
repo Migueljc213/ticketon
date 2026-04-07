@@ -1,0 +1,89 @@
+# =============================================================================
+# DEPENDABOT — Atualizações Automáticas de Dependências
+# =============================================================================
+#
+# O que é o Dependabot?
+# ─────────────────────
+# É um bot do GitHub que monitora suas dependências (package.json, etc.)
+# e abre Pull Requests automaticamente quando há atualizações disponíveis.
+#
+# Por que isso é importante?
+# ──────────────────────────
+# Dependências desatualizadas são a principal fonte de vulnerabilidades
+# de segurança em aplicações web. O Dependabot garante que você seja
+# notificado sobre patches de segurança sem precisar verificar manualmente.
+#
+# Fluxo típico:
+#   1. Dependabot detecta nova versão de uma dependência
+#   2. Abre um PR com o título "chore(deps): bump express from 4.18.0 to 4.18.2"
+#   3. Seu CI roda nos testes do PR
+#   4. Se passar, você (ou um auto-merge) faz o merge
+#
+# Configuração: https://docs.github.com/en/code-security/dependabot
+# =============================================================================
+
+version: 2
+# ↑ Versão do schema de configuração do Dependabot. Sempre use 2.
+
+updates:
+  # ---------------------------------------------------------------------------
+  # Configuração para dependências npm (Node.js)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "npm"
+    # ↑ Tipo de gerenciador de pacotes. Outros suportados:
+    #   "pip" (Python), "maven" (Java), "composer" (PHP),
+    #   "docker" (Dockerfiles), "github-actions" (workflows), etc.
+
+    directory: "/"
+    # ↑ Onde está o package.json em relação à raiz do repositório.
+    #   "/" = raiz do repo. Se tiver um monorepo, pode ser "/packages/api".
+
+    schedule:
+      interval: "weekly"
+      # ↑ Frequência de verificação. Opções: "daily", "weekly", "monthly".
+      #   "weekly" é o equilíbrio ideal: não abre PRs todo dia,
+      #   mas mantém as deps relativamente atualizadas.
+
+      day: "monday"
+      # ↑ Dia da semana para verificar (apenas para interval: weekly).
+      #   Segunda-feira é comum: você começa a semana vendo as atualizações.
+
+      time: "09:00"
+      # ↑ Horário (UTC) para rodar a verificação.
+      #   09:00 UTC = 06:00 BRT (ou 10:00 no horário de verão).
+
+    open-pull-requests-limit: 5
+    # ↑ Máximo de PRs abertos simultaneamente pelo Dependabot.
+    #   Evita ser inundado com dezenas de PRs de uma vez.
+    #   Se tiver 5 PRs abertos, ele espera até alguns serem fechados.
+
+    labels:
+      - "dependencies"
+      - "npm"
+      # ↑ Labels (etiquetas) adicionadas automaticamente nos PRs.
+      #   Útil para filtrar e organizar PRs no GitHub.
+      #   Você precisa criar essas labels no repositório primeiro:
+      #   GitHub → Issues → Labels → New label.
+
+    commit-message:
+      prefix: "chore"
+      # ↑ Prefixo das mensagens de commit (Conventional Commits).
+      #   Gera commits como: "chore(deps): bump lodash from 4.17.20 to 4.17.21"
+      #   "chore" = tarefa de manutenção (não afeta o produto final)
+
+      include: "scope"
+      # ↑ Inclui o nome do pacote como "scope" entre parênteses.
+      #   Ex: "chore(express): bump from 4.18.0 to 4.18.2"
+
+    groups:
+      # ↑ Agrupa atualizações relacionadas em um único PR.
+      #   Sem grupos: 10 atualizações = 10 PRs separados.
+      #   Com grupos: 10 atualizações = 1 ou 2 PRs (muito mais gerenciável).
+
+      production-dependencies:
+        # ↑ Agrupa todas as dependências de produção (dependencies no package.json)
+        dependency-type: "production"
+
+      development-dependencies:
+        # ↑ Agrupa todas as dependências de desenvolvimento (devDependencies)
+        dependency-type: "development"

@@ -5,7 +5,6 @@ import { UserRepositoryToken } from '../user.token';
 import IUsecase from 'src/common/interfaces/IUseCase';
 import CreateUserUseCaseInputDto from '../external/dto/create.user.usecase.input.dto';
 import CreateUserUseCaseOutput from './dto/output/create.user.usecase.output';
-import * as argon2 from 'argon2';
 
 @Injectable()
 export default class CreateUserUseCase

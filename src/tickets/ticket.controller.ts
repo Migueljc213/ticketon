@@ -21,6 +21,7 @@ import {
   FindAllTicketsToken,
   FindTicketByIdToken,
   UpdateTicketToken,
+  FindTicketsByEventIdToken,
 } from './ticket.token';
 import type IUsecase from 'src/common/interfaces/IUseCase';
 import CreateTicketUseCaseInputDto from './external/dto/create.ticket.usecase.input.dto';
@@ -29,6 +30,8 @@ import CreateTicketUseCaseInput from './usecase/dto/input/create.ticket.usecase.
 import FindTicketByIdUseCaseInput from './usecase/dto/input/find.ticket.by.id.usecase.input';
 import FindTicketByIdUseCaseOutput from './usecase/dto/output/find.ticket.by.id.usecase.output';
 import FindAllTicketsUseCaseOutput from './usecase/dto/output/find.all.tickets.usecase.output';
+import FindTicketsByEventIdUseCaseInput from './usecase/dto/input/find.tickets.by.event.id.usecase.input';
+import FindTicketsByEventIdUseCaseOutput from './usecase/dto/output/find.tickets.by.event.id.usecase.output';
 import UpdateTicketUseCaseInputDto from './external/dto/update.ticket.usecase.input.dto';
 import UpdateTicketUseCaseInput from './usecase/dto/input/update.ticket.usecase.input';
 import UpdateTicketUseCaseOutput from './usecase/dto/output/update.ticket.usecase.output';
@@ -57,6 +60,11 @@ export default class TicketController {
     >,
     @Inject(DeleteTicketToken)
     private readonly deleteTicket: IUsecase<DeleteTicketUseCaseInput, void>,
+    @Inject(FindTicketsByEventIdToken)
+    private readonly findTicketsByEventId: IUsecase<
+      FindTicketsByEventIdUseCaseInput,
+      FindTicketsByEventIdUseCaseOutput
+    >,
   ) {}
 
   private readonly logger = new Logger(TicketController.name);
@@ -84,6 +92,20 @@ export default class TicketController {
       return await this.findAllTickets.run();
     } catch (e) {
       throw new BadRequestException(e.message);
+    }
+  }
+
+  @Get('event/:eventId')
+  @HttpCode(HttpStatus.OK)
+  async getTicketsByEventId(
+    @Param('eventId', ParseIntPipe) eventId: number,
+  ): Promise<FindTicketsByEventIdUseCaseOutput> {
+    try {
+      this.logger.log(`GET /tickets/event/${eventId}`);
+      const useCaseInput = new FindTicketsByEventIdUseCaseInput(eventId);
+      return await this.findTicketsByEventId.run(useCaseInput);
+    } catch (e) {
+      throw new NotFoundException(e.message);
     }
   }
 

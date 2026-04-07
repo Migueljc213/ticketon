@@ -19,6 +19,11 @@ export default class CreateTicketUseCase
   async run(input: CreateTicketUseCaseInput): Promise<CreateTicketUseCaseOutput> {
     this.logger.log('Creating ticket', input.name);
 
-    return this.repository.create(input);
+    const createData = {
+      ...input,
+      saleStartDate: input.saleStartDate ? new Date(input.saleStartDate) : undefined,
+      saleEndDate: input.saleEndDate ? new Date(input.saleEndDate) : undefined,
+    };
+    return this.repository.create(createData);
   }
 }

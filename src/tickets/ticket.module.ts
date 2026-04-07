@@ -7,6 +7,7 @@ import {
   DeleteTicketToken,
   FindAllTicketsToken,
   FindTicketByIdToken,
+  FindTicketsByEventIdToken,
   TicketRepositoryToken,
   UpdateTicketToken,
 } from './ticket.token';
@@ -14,6 +15,7 @@ import TicketController from './ticket.controller';
 import CreateTicketUseCase from './usecase/create.ticket.usecase';
 import FindTicketByIdUseCase from './usecase/find.ticket.by.id.usecase';
 import FindAllTicketsUseCase from './usecase/find.all.tickets.usecase';
+import FindTicketsByEventIdUseCase from './usecase/find.tickets.by.event.id.usecase';
 import UpdateTicketUseCase from './usecase/update.ticket.usecase';
 import DeleteTicketUseCase from './usecase/delete.ticket.usecase';
 
@@ -36,6 +38,10 @@ import DeleteTicketUseCase from './usecase/delete.ticket.usecase';
     {
       provide: FindAllTicketsToken,
       useClass: FindAllTicketsUseCase,
+    },
+    {
+      provide: FindTicketsByEventIdToken,
+      useClass: FindTicketsByEventIdUseCase,
     },
     {
       provide: UpdateTicketToken,

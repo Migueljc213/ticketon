@@ -39,6 +39,6 @@ export default class UpdateTicketUseCase
     if (input.ticketType !== undefined) updateData.ticketType = input.ticketType;
     if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
-    return this.repository.update(input.id, updateData);
+    return this.repository.update(input.id, updateData as Parameters<ITicketRepository['update']>[1]);
   }
 }

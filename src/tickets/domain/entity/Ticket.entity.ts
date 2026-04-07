@@ -10,7 +10,7 @@ export default class Ticket extends BaseEntity {
   name: string;
 
   @Column({ name: 'description', type: 'text', nullable: true })
-  description: string;
+  description: string | null;
 
   @Column({ name: 'price', type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
@@ -28,10 +28,10 @@ export default class Ticket extends BaseEntity {
   maxPerOrder: number;
 
   @Column({ name: 'sale_start_date', type: 'datetime', nullable: true })
-  saleStartDate: Date;
+  saleStartDate: Date | null;
 
   @Column({ name: 'sale_end_date', type: 'datetime', nullable: true })
-  saleEndDate: Date;
+  saleEndDate: Date | null;
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;

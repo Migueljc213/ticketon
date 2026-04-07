@@ -21,6 +21,7 @@ import {
   FindAllOrganizersToken,
   FindOrganizerByIdToken,
   UpdateOrganizerToken,
+  ApproveOrganizerToken,
 } from './organizer.token';
 import type IUsecase from 'src/common/interfaces/IUseCase';
 import CreateOrganizerUseCaseInputDto from './external/dto/create.organizer.usecase.input.dto';
@@ -33,6 +34,8 @@ import UpdateOrganizerUseCaseInputDto from './external/dto/update.organizer.usec
 import UpdateOrganizerUseCaseInput from './usecase/dto/input/update.organizer.usecase.input';
 import UpdateOrganizerUseCaseOutput from './usecase/dto/output/update.organizer.usecase.output';
 import DeleteOrganizerUseCaseInput from './usecase/dto/input/delete.organizer.usecase.input';
+import ApproveOrganizerUseCaseInput from './usecase/dto/input/approve.organizer.usecase.input';
+import ApproveOrganizerUseCaseOutput from './usecase/dto/output/approve.organizer.usecase.output';
 import JwtAuthGuard from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('/organizers')
@@ -60,6 +63,11 @@ export default class OrganizerController {
     >,
     @Inject(DeleteOrganizerToken)
     private readonly deleteOrganizer: IUsecase<DeleteOrganizerUseCaseInput, void>,
+    @Inject(ApproveOrganizerToken)
+    private readonly approveOrganizerUseCase: IUsecase<
+      ApproveOrganizerUseCaseInput,
+      ApproveOrganizerUseCaseOutput
+    >,
   ) {}
 
   private readonly logger = new Logger(OrganizerController.name);
@@ -130,6 +138,22 @@ export default class OrganizerController {
       return await this.deleteOrganizer.run(useCaseInput);
     } catch (e) {
       throw new NotFoundException(e.message);
+    }
+  }
+
+  @Patch(':id/approve')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async approveOrganizer(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { isVerified: boolean },
+  ): Promise<ApproveOrganizerUseCaseOutput> {
+    try {
+      this.logger.log(`PATCH /organizers/${id}/approve`);
+      const useCaseInput = new ApproveOrganizerUseCaseInput(id, body.isVerified);
+      return await this.approveOrganizerUseCase.run(useCaseInput);
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
   }
 }

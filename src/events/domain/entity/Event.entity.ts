@@ -19,34 +19,34 @@ export default class Event extends BaseEntity {
   eventDate: Date;
 
   @Column({ name: 'event_end_date', type: 'datetime', nullable: true })
-  eventEndDate: Date;
+  eventEndDate: Date | null;
 
   @Column({ name: 'location_type', length: 20, nullable: false })
   locationType: string;
 
-  @Column({ name: 'venue_name', length: 255, nullable: true })
-  venueName: string;
+  @Column({ name: 'venue_name', type: 'varchar', length: 255, nullable: true })
+  venueName: string | null;
 
   @Column({ name: 'address', type: 'text', nullable: true })
-  address: string;
+  address: string | null;
 
-  @Column({ name: 'city', length: 100, nullable: true })
-  city: string;
+  @Column({ name: 'city', type: 'varchar', length: 100, nullable: true })
+  city: string | null;
 
-  @Column({ name: 'state', length: 2, nullable: true })
-  state: string;
+  @Column({ name: 'state', type: 'varchar', length: 2, nullable: true })
+  state: string | null;
 
-  @Column({ name: 'zipcode', length: 8, nullable: true })
-  zipcode: string;
+  @Column({ name: 'zipcode', type: 'varchar', length: 8, nullable: true })
+  zipcode: string | null;
 
   @Column({ name: 'online_url', type: 'text', nullable: true })
-  onlineUrl: string;
+  onlineUrl: string | null;
 
   @Column({ name: 'banner_url', type: 'text', nullable: true })
-  bannerUrl: string;
+  bannerUrl: string | null;
 
   @Column({ name: 'max_attendees', type: 'int', nullable: true })
-  maxAttendees: number;
+  maxAttendees: number | null;
 
   @Column({ name: 'status', length: 20, nullable: false, default: 'draft' })
   status: string;
@@ -58,5 +58,5 @@ export default class Event extends BaseEntity {
   isPublished: boolean;
 
   @Column({ name: 'published_at', type: 'datetime', nullable: true })
-  publishedAt: Date;
+  publishedAt: Date | null;
 }

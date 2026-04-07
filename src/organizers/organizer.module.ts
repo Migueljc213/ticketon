@@ -9,6 +9,7 @@ import {
   FindOrganizerByIdToken,
   OrganizerRepositoryToken,
   UpdateOrganizerToken,
+  ApproveOrganizerToken,
 } from './organizer.token';
 import OrganizerController from './organizer.controller';
 import CreateOrganizerUseCase from './usecase/create.organizer.usecase';
@@ -16,6 +17,7 @@ import FindOrganizerByIdUseCase from './usecase/find.organizer.by.id.usecase';
 import FindAllOrganizersUseCase from './usecase/find.all.organizers.usecase';
 import UpdateOrganizerUseCase from './usecase/update.organizer.usecase';
 import DeleteOrganizerUseCase from './usecase/delete.organizer.usecase';
+import ApproveOrganizerUseCase from './usecase/approve.organizer.usecase';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Organizer])],
@@ -44,6 +46,10 @@ import DeleteOrganizerUseCase from './usecase/delete.organizer.usecase';
     {
       provide: DeleteOrganizerToken,
       useClass: DeleteOrganizerUseCase,
+    },
+    {
+      provide: ApproveOrganizerToken,
+      useClass: ApproveOrganizerUseCase,
     },
   ],
 })
