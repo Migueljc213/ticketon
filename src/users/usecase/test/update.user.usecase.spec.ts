@@ -16,7 +16,10 @@ describe('UpdateUser usecase', () => {
       password: 'password123',
     });
 
-    const input = { id: createdUser.id, name: 'Updated Name' } as UpdateUserUseCaseInput;
+    const input = {
+      id: createdUser.id,
+      name: 'Updated Name',
+    } as UpdateUserUseCaseInput;
     const updatedUser = await updateUser.run(input);
 
     expect(updatedUser.id).toBe(createdUser.id);
@@ -53,7 +56,10 @@ describe('UpdateUser usecase', () => {
     });
 
     // Try to update user1's email to user2's email
-    const input = { id: user1.id, email: 'user2@test.com' } as UpdateUserUseCaseInput;
+    const input = {
+      id: user1.id,
+      email: 'user2@test.com',
+    } as UpdateUserUseCaseInput;
 
     await expect(updateUser.run(input)).rejects.toThrow('Email already in use');
   });

@@ -21,4 +21,3 @@ export default class FindOrderItemByQrCodeUseCaseOutput {
     this.ticket = ticket;
   }
 }
-

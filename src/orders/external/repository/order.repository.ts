@@ -38,7 +38,10 @@ export default class OrderRepository implements IOrderRepository {
   }
 
   findAll(): Promise<Order[]> {
-    return this.repo.find({ relations: ['items'], order: { createdAt: 'DESC' } });
+    return this.repo.find({
+      relations: ['items'],
+      order: { createdAt: 'DESC' },
+    });
   }
 
   findExpiredPending(): Promise<Order[]> {

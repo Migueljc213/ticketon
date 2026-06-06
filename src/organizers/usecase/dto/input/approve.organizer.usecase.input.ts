@@ -7,4 +7,3 @@ export default class ApproveOrganizerUseCaseInput {
     this.isVerified = isVerified;
   }
 }
-

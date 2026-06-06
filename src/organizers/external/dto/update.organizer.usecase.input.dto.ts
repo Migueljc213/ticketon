@@ -1,9 +1,4 @@
-import {
-  IsBoolean,
-  IsOptional,
-  IsString,
-  Length,
-} from 'class-validator';
+import { IsBoolean, IsOptional, IsString, Length } from 'class-validator';
 import PartialClass from 'src/domain/partial.class.base';
 
 export default class UpdateOrganizerUseCaseInputDto extends PartialClass<UpdateOrganizerUseCaseInputDto> {

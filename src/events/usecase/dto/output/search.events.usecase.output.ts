@@ -7,4 +7,3 @@ export default class SearchEventsUseCaseOutput {
     this.events = events;
   }
 }
-

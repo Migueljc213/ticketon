@@ -59,4 +59,3 @@ describe('ApproveOrganizerUseCase', () => {
     ).rejects.toThrow('Organizer not found');
   });
 });
-

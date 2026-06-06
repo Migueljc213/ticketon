@@ -103,4 +103,3 @@ describe('FindEventPostsByEventIdUseCase', () => {
     expect(result.posts).toHaveLength(0);
   });
 });
-

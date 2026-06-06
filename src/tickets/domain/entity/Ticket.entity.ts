@@ -12,7 +12,13 @@ export default class Ticket extends BaseEntity {
   @Column({ name: 'description', type: 'text', nullable: true })
   description: string | null;
 
-  @Column({ name: 'price', type: 'decimal', precision: 10, scale: 2, nullable: false })
+  @Column({
+    name: 'price',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+  })
   price: number;
 
   @Column({ name: 'quantity_available', type: 'int', nullable: false })

@@ -30,4 +30,3 @@ export default class FindEventPostsByEventIdUseCase
     return new FindEventPostsByEventIdUseCaseOutput(posts);
   }
 }
-

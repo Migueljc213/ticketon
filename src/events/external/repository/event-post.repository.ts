@@ -47,4 +47,3 @@ export default class EventPostRepository implements IEventPostRepository {
     await this.repository.delete(id);
   }
 }
-

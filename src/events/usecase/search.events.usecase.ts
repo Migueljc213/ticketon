@@ -31,14 +31,12 @@ export default class SearchEventsUseCase
 
   private createCityFilter(city: string): EventFilter {
     const normalizedCity = city.toLowerCase();
-    return (event: Event) =>
-      event.city?.toLowerCase() === normalizedCity;
+    return (event: Event) => event.city?.toLowerCase() === normalizedCity;
   }
 
   private createStateFilter(state: string): EventFilter {
     const normalizedState = state.toUpperCase();
-    return (event: Event) =>
-      event.state?.toUpperCase() === normalizedState;
+    return (event: Event) => event.state?.toUpperCase() === normalizedState;
   }
 
   private createStartDateFilter(startDate: Date): EventFilter {
@@ -106,4 +104,3 @@ export default class SearchEventsUseCase
     return new SearchEventsUseCaseOutput(filteredEvents);
   }
 }
-

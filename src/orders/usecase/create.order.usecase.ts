@@ -39,7 +39,9 @@ export default class CreateOrderUseCase
         .getMany();
 
       if (tickets.length !== ticketIds.length) {
-        throw new NotFoundException('Um ou mais tipos de ingresso não foram encontrados');
+        throw new NotFoundException(
+          'Um ou mais tipos de ingresso não foram encontrados',
+        );
       }
 
       // Valida disponibilidade de estoque
@@ -51,7 +53,10 @@ export default class CreateOrderUseCase
             `Ingresso "${ticket.name}" não tem estoque suficiente (disponível: ${available})`,
           );
         }
-        if (item.quantity < ticket.minPerOrder || item.quantity > ticket.maxPerOrder) {
+        if (
+          item.quantity < ticket.minPerOrder ||
+          item.quantity > ticket.maxPerOrder
+        ) {
           throw new ConflictException(
             `Quantidade inválida para "${ticket.name}" (min: ${ticket.minPerOrder}, max: ${ticket.maxPerOrder})`,
           );

@@ -5,4 +5,3 @@ export default class GetCheckInDashboardUseCaseInput {
     this.eventId = eventId;
   }
 }
-

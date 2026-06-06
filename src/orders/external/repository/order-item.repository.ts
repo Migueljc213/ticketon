@@ -48,4 +48,3 @@ export default class OrderItemRepository implements IOrderItemRepository {
     await this.repository.delete(id);
   }
 }
-

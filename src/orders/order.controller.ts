@@ -40,11 +40,20 @@ export default class OrderController {
 
   constructor(
     @Inject(CreateOrderToken)
-    private readonly createOrder: IUsecase<CreateOrderUseCaseInput, CreateOrderUseCaseOutput>,
+    private readonly createOrder: IUsecase<
+      CreateOrderUseCaseInput,
+      CreateOrderUseCaseOutput
+    >,
     @Inject(FindOrderByIdToken)
-    private readonly findOrderById: IUsecase<FindOrderByIdUseCaseInput, FindOrderByIdUseCaseOutput>,
+    private readonly findOrderById: IUsecase<
+      FindOrderByIdUseCaseInput,
+      FindOrderByIdUseCaseOutput
+    >,
     @Inject(FindOrdersByUserToken)
-    private readonly findOrdersByUser: IUsecase<FindOrdersByUserUseCaseInput, FindOrdersByUserUseCaseOutput>,
+    private readonly findOrdersByUser: IUsecase<
+      FindOrdersByUserUseCaseInput,
+      FindOrdersByUserUseCaseOutput
+    >,
     private readonly dataSource: DataSource,
   ) {}
 

@@ -52,4 +52,3 @@ export const TEST_CONSTANTS = {
     FUTURE: 'FUTURE-QR-CODE',
   },
 } as const;
-

@@ -30,4 +30,3 @@ export default class FindTicketsByEventIdUseCase
     return new FindTicketsByEventIdUseCaseOutput(tickets);
   }
 }
-

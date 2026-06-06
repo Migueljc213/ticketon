@@ -5,4 +5,3 @@ export default class FindTicketsByEventIdUseCaseInput {
     this.eventId = eventId;
   }
 }
-

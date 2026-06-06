@@ -2,10 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import type IOrderRepository from '../domain/interface/order.repository.interface';
 import type IOrderItemRepository from '../domain/interface/order-item.repository.interface';
 import type ITicketRepository from 'src/tickets/domain/interface/ticket.repository.interface';
-import {
-  OrderRepositoryToken,
-  OrderItemRepositoryToken,
-} from '../order.token';
+import { OrderRepositoryToken, OrderItemRepositoryToken } from '../order.token';
 import { TicketRepositoryToken } from 'src/tickets/ticket.token';
 import IUsecase from 'src/common/interfaces/IUseCase';
 import GetParticipantsListUseCaseInput from './dto/input/get.participants.list.usecase.input';
@@ -36,7 +33,9 @@ export default class GetParticipantsListUseCase
     this.logger.log('Getting participants list for event', input.eventId);
 
     const orders = await this.orderRepository.findByEventId(input.eventId);
-    const paidOrders = orders.filter((order) => order.status === OrderStatus.PAID);
+    const paidOrders = orders.filter(
+      (order) => order.status === OrderStatus.PAID,
+    );
 
     const participants: Participant[] = [];
 
@@ -68,4 +67,3 @@ export default class GetParticipantsListUseCase
     return new GetParticipantsListUseCaseOutput(participants);
   }
 }
-

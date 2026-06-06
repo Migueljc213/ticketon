@@ -7,8 +7,7 @@ import UpdateOrganizerUseCaseOutput from './dto/output/update.organizer.usecase.
 
 @Injectable()
 export default class UpdateOrganizerUseCase
-  implements
-    IUsecase<UpdateOrganizerUseCaseInput, UpdateOrganizerUseCaseOutput>
+  implements IUsecase<UpdateOrganizerUseCaseInput, UpdateOrganizerUseCaseOutput>
 {
   private readonly logger = new Logger(UpdateOrganizerUseCase.name);
 
@@ -40,7 +39,8 @@ export default class UpdateOrganizerUseCase
       updateData.description = input.description;
     if (input.logoUrl !== undefined) updateData.logoUrl = input.logoUrl;
     if (input.website !== undefined) updateData.website = input.website;
-    if (input.isVerified !== undefined) updateData.isVerified = input.isVerified;
+    if (input.isVerified !== undefined)
+      updateData.isVerified = input.isVerified;
     if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
     return this.repository.update(input.id, updateData);

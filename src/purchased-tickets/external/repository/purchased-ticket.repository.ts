@@ -5,7 +5,9 @@ import IPurchasedTicketRepository from '../../domain/interface/purchased-ticket.
 import PurchasedTicket from '../../domain/entity/PurchasedTicket.entity';
 
 @Injectable()
-export default class PurchasedTicketRepository implements IPurchasedTicketRepository {
+export default class PurchasedTicketRepository
+  implements IPurchasedTicketRepository
+{
   constructor(
     @InjectRepository(PurchasedTicket)
     private readonly repo: Repository<PurchasedTicket>,

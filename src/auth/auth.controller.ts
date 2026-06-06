@@ -32,7 +32,9 @@ export default class AuthController {
     @Body() input: LoginUseCaseInputDto,
   ): Promise<LoginUseCaseOutput> {
     try {
-      this.logger.log(`POST /auth/login body: ${JSON.stringify({ email: input.email })}`);
+      this.logger.log(
+        `POST /auth/login body: ${JSON.stringify({ email: input.email })}`,
+      );
       const useCaseInput = new LoginUseCaseInput(input);
       return await this.loginUseCase.run(useCaseInput);
     } catch (e) {

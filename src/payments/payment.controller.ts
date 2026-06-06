@@ -1,6 +1,16 @@
-import { Body, Controller, HttpCode, Inject, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Inject,
+  Logger,
+  Post,
+} from '@nestjs/common';
 import { HandleWebhookToken } from './payment.token';
-import type { WebhookInput, WebhookOutput } from './usecase/handle.webhook.usecase';
+import type {
+  WebhookInput,
+  WebhookOutput,
+} from './usecase/handle.webhook.usecase';
 import type IUsecase from 'src/common/interfaces/IUseCase';
 
 @Controller('payments')

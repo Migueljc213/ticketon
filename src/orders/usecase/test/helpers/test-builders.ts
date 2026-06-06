@@ -107,7 +107,8 @@ export class OrderItemTestBuilder {
       overrides?.unitPrice ?? TEST_CONSTANTS.PRICES.DEFAULT_UNIT_PRICE;
     this.orderItem.totalPrice =
       overrides?.totalPrice ?? TEST_CONSTANTS.PRICES.DEFAULT_TOTAL_PRICE;
-    this.orderItem.qrCode = overrides?.qrCode ?? TEST_CONSTANTS.QR_CODES.DEFAULT;
+    this.orderItem.qrCode =
+      overrides?.qrCode ?? TEST_CONSTANTS.QR_CODES.DEFAULT;
     this.orderItem.qrCodeData = overrides?.qrCodeData ?? (null as any);
     this.orderItem.isUsed = overrides?.isUsed ?? false;
     this.orderItem.usedAt = overrides?.usedAt ?? (null as any);
@@ -182,8 +183,7 @@ export class EventTestBuilder {
     this.event.id = overrides?.id ?? TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID;
     this.event.organizerId =
       overrides?.organizerId ?? TEST_CONSTANTS.IDS.DEFAULT_ORGANIZER_ID;
-    this.event.title =
-      overrides?.title ?? TEST_CONSTANTS.EVENTS.DEFAULT_TITLE;
+    this.event.title = overrides?.title ?? TEST_CONSTANTS.EVENTS.DEFAULT_TITLE;
     this.event.description =
       overrides?.description ?? TEST_CONSTANTS.EVENTS.DEFAULT_DESCRIPTION;
     this.event.category =
@@ -241,8 +241,7 @@ export class TicketTestBuilder {
     this.ticket.id = overrides?.id ?? TEST_CONSTANTS.IDS.DEFAULT_TICKET_ID;
     this.ticket.eventId =
       overrides?.eventId ?? TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID;
-    this.ticket.name =
-      overrides?.name ?? TEST_CONSTANTS.TICKETS.DEFAULT_NAME;
+    this.ticket.name = overrides?.name ?? TEST_CONSTANTS.TICKETS.DEFAULT_NAME;
     this.ticket.description =
       overrides?.description ?? TEST_CONSTANTS.TICKETS.DEFAULT_DESCRIPTION;
     this.ticket.price =
@@ -251,7 +250,8 @@ export class TicketTestBuilder {
       overrides?.quantityAvailable ??
       TEST_CONSTANTS.QUANTITIES.DEFAULT_QUANTITY_AVAILABLE;
     this.ticket.quantitySold =
-      overrides?.quantitySold ?? TEST_CONSTANTS.QUANTITIES.DEFAULT_QUANTITY_SOLD;
+      overrides?.quantitySold ??
+      TEST_CONSTANTS.QUANTITIES.DEFAULT_QUANTITY_SOLD;
     this.ticket.isActive = overrides?.isActive ?? true;
     this.ticket.minPerOrder = overrides?.minPerOrder ?? 1;
     this.ticket.maxPerOrder = overrides?.maxPerOrder ?? 10;
@@ -303,4 +303,3 @@ export class TicketTestBuilder {
     return this.ticket;
   }
 }
-

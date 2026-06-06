@@ -11,8 +11,7 @@ import CreateEventPostUseCaseOutput from './dto/output/create.event.post.usecase
 
 @Injectable()
 export default class CreateEventPostUseCase
-  implements
-    IUsecase<CreateEventPostUseCaseInput, CreateEventPostUseCaseOutput>
+  implements IUsecase<CreateEventPostUseCaseInput, CreateEventPostUseCaseOutput>
 {
   private readonly logger = new Logger(CreateEventPostUseCase.name);
 
@@ -63,4 +62,3 @@ export default class CreateEventPostUseCase
     return post;
   }
 }
-

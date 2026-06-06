@@ -27,4 +27,3 @@ export default class CheckInOrderItemUseCaseOutput {
     this.message = message;
   }
 }
-

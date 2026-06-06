@@ -69,7 +69,9 @@ export default class EventController {
     @Body() input: CreateEventUseCaseInputDto,
   ): Promise<CreateEventUseCaseOutput> {
     try {
-      this.logger.log(`POST /events/ body: ${JSON.stringify({ title: input.title })}`);
+      this.logger.log(
+        `POST /events/ body: ${JSON.stringify({ title: input.title })}`,
+      );
       const useCaseInput = new CreateEventUseCaseInput(input);
       return await this.createEvent.run(useCaseInput);
     } catch (e) {
@@ -90,10 +92,13 @@ export default class EventController {
       this.logger.log(`GET /events/search title=${title} category=${category}`);
       const result = await this.findAllEvents.run();
       const filtered = result.events.filter((e) => {
-        if (title && !e.title?.toLowerCase().includes(title.toLowerCase())) return false;
+        if (title && !e.title?.toLowerCase().includes(title.toLowerCase()))
+          return false;
         if (category && e.category !== category) return false;
-        if (city && !e.city?.toLowerCase().includes(city.toLowerCase())) return false;
-        if (state && e.state?.toLowerCase() !== state.toLowerCase()) return false;
+        if (city && !e.city?.toLowerCase().includes(city.toLowerCase()))
+          return false;
+        if (state && e.state?.toLowerCase() !== state.toLowerCase())
+          return false;
         if (isPublished === 'true' && !e.isPublished) return false;
         return true;
       });

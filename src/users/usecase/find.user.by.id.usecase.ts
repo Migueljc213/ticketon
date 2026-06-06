@@ -15,7 +15,9 @@ export default class FindUserByIdUseCase
     @Inject(UserRepositoryToken) private readonly repository: IUserRepository,
   ) {}
 
-  async run(input: FindUserByIdUseCaseInput): Promise<FindUserByIdUseCaseOutput> {
+  async run(
+    input: FindUserByIdUseCaseInput,
+  ): Promise<FindUserByIdUseCaseOutput> {
     this.logger.log('Finding user by id', input.id);
 
     const user = await this.repository.findById(input.id);

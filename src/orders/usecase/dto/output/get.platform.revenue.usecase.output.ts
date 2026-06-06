@@ -29,4 +29,3 @@ export default class GetPlatformRevenueUseCaseOutput {
     this.revenueByMonth = data.revenueByMonth;
   }
 }
-

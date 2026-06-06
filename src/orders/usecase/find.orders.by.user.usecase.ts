@@ -7,7 +7,8 @@ import FindOrdersByUserUseCaseOutput from './dto/output/find.orders.by.user.usec
 
 @Injectable()
 export default class FindOrdersByUserUseCase
-  implements IUsecase<FindOrdersByUserUseCaseInput, FindOrdersByUserUseCaseOutput>
+  implements
+    IUsecase<FindOrdersByUserUseCaseInput, FindOrdersByUserUseCaseOutput>
 {
   private readonly logger = new Logger(FindOrdersByUserUseCase.name);
 
@@ -16,7 +17,9 @@ export default class FindOrdersByUserUseCase
     private readonly repository: IOrderRepository,
   ) {}
 
-  async run(input: FindOrdersByUserUseCaseInput): Promise<FindOrdersByUserUseCaseOutput> {
+  async run(
+    input: FindOrdersByUserUseCaseInput,
+  ): Promise<FindOrdersByUserUseCaseOutput> {
     this.logger.log(`Finding orders for user ${input.userId}`);
     const orders = await this.repository.findByUserId(input.userId);
     return new FindOrdersByUserUseCaseOutput({ orders });

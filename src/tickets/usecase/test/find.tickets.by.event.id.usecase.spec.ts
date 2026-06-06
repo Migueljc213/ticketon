@@ -51,7 +51,9 @@ describe('FindTicketsByEventIdUseCase', () => {
   });
 
   it('should return empty array when no tickets exist for event', async () => {
-    const result = await findTicketsByEventIdUseCase.run({ eventId: 999 } as any);
+    const result = await findTicketsByEventIdUseCase.run({
+      eventId: 999,
+    } as any);
 
     expect(result.tickets).toHaveLength(0);
   });
@@ -82,4 +84,3 @@ describe('FindTicketsByEventIdUseCase', () => {
     expect(result.tickets[0].name).toBe('VIP');
   });
 });
-

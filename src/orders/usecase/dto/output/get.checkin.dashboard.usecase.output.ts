@@ -36,4 +36,3 @@ export default class GetCheckInDashboardUseCaseOutput {
     this.revenue = data.revenue;
   }
 }
-

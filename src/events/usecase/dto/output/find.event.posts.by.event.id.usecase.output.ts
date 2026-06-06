@@ -7,4 +7,3 @@ export default class FindEventPostsByEventIdUseCaseOutput {
     this.posts = posts;
   }
 }
-

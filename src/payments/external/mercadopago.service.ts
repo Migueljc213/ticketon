@@ -36,8 +36,12 @@ export default class MercadoPagoService {
       this.config.get<string>('FRONTEND_URL') ?? 'http://localhost:3001';
   }
 
-  async createPreference(input: CreatePreferenceInput): Promise<CreatedPreference> {
-    this.logger.log(`Creating MP preference for order ${input.externalReference}`);
+  async createPreference(
+    input: CreatePreferenceInput,
+  ): Promise<CreatedPreference> {
+    this.logger.log(
+      `Creating MP preference for order ${input.externalReference}`,
+    );
 
     const backUrl = input.backUrl ?? this.frontendUrl;
 

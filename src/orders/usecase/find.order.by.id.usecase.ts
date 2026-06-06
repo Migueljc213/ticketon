@@ -16,10 +16,13 @@ export default class FindOrderByIdUseCase
     private readonly repository: IOrderRepository,
   ) {}
 
-  async run(input: FindOrderByIdUseCaseInput): Promise<FindOrderByIdUseCaseOutput> {
+  async run(
+    input: FindOrderByIdUseCaseInput,
+  ): Promise<FindOrderByIdUseCaseOutput> {
     this.logger.log(`Finding order ${input.id}`);
     const order = await this.repository.findById(input.id);
-    if (!order) throw new NotFoundException(`Pedido ${input.id} não encontrado`);
+    if (!order)
+      throw new NotFoundException(`Pedido ${input.id} não encontrado`);
     return new FindOrderByIdUseCaseOutput({ order });
   }
 }

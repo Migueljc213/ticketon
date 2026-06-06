@@ -9,4 +9,3 @@ export default interface IEventPostRepository {
   update(id: number, input: Partial<EventPost>): Promise<EventPost>;
   delete(id: number): Promise<void>;
 }
-

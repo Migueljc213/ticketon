@@ -14,7 +14,8 @@ export default class LoginUseCase
   private readonly logger = new Logger(LoginUseCase.name);
 
   constructor(
-    @Inject(UserRepositoryToken) private readonly userRepository: IUserRepository,
+    @Inject(UserRepositoryToken)
+    private readonly userRepository: IUserRepository,
     private readonly jwtService: JwtService,
   ) {}
 

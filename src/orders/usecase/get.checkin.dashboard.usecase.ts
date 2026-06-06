@@ -2,10 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import type IOrderRepository from '../domain/interface/order.repository.interface';
 import type IOrderItemRepository from '../domain/interface/order-item.repository.interface';
 import type IEventRepository from 'src/events/domain/interface/event.repository.interface';
-import {
-  OrderRepositoryToken,
-  OrderItemRepositoryToken,
-} from '../order.token';
+import { OrderRepositoryToken, OrderItemRepositoryToken } from '../order.token';
 import { EventRepositoryToken } from 'src/events/event.token';
 import IUsecase from 'src/common/interfaces/IUseCase';
 import GetCheckInDashboardUseCaseInput from './dto/input/get.checkin.dashboard.usecase.input';
@@ -35,7 +32,9 @@ export default class GetCheckInDashboardUseCase
     this.logger.log('Getting check-in dashboard for event', input.eventId);
 
     const orders = await this.orderRepository.findByEventId(input.eventId);
-    const paidOrders = orders.filter((order) => order.status === OrderStatus.PAID);
+    const paidOrders = orders.filter(
+      (order) => order.status === OrderStatus.PAID,
+    );
     let totalTicketsSold = 0;
     let totalTicketsCheckedIn = 0;
     let totalRevenue = 0;
@@ -60,10 +59,7 @@ export default class GetCheckInDashboardUseCase
             checkedInToday++;
           }
 
-          checkedInByDate.set(
-            dateKey,
-            (checkedInByDate.get(dateKey) || 0) + 1,
-          );
+          checkedInByDate.set(dateKey, (checkedInByDate.get(dateKey) || 0) + 1);
         }
       }
     }
@@ -97,4 +93,3 @@ export default class GetCheckInDashboardUseCase
     });
   }
 }
-

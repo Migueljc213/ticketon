@@ -15,7 +15,13 @@ export default class PurchasedTicket extends BaseEntity {
   userId: number;
 
   /** UUID único usado como QR code para validação na entrada */
-  @Column({ name: 'qr_code', type: 'varchar', length: 100, unique: true, nullable: false })
+  @Column({
+    name: 'qr_code',
+    type: 'varchar',
+    length: 100,
+    unique: true,
+    nullable: false,
+  })
   qrCode: string;
 
   @Column({ name: 'status', length: 20, default: 'valid' })

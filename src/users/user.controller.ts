@@ -67,7 +67,9 @@ export default class UserController {
     @Body() input: CreateUserUseCaseInputDto,
   ): Promise<CreateUserUseCaseOutput> {
     try {
-      this.logger.log(`POST /users/ body: ${JSON.stringify({ email: input.email })}`);
+      this.logger.log(
+        `POST /users/ body: ${JSON.stringify({ email: input.email })}`,
+      );
       const useCaseInput = new CreateUserUseCaseInput(input);
       return await this.createUser.run(useCaseInput);
     } catch (e) {

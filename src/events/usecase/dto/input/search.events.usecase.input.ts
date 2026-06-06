@@ -25,4 +25,3 @@ export default class SearchEventsUseCaseInput {
     this.isPublished = filters.isPublished;
   }
 }
-

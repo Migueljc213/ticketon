@@ -10,4 +10,3 @@ export default interface IOrderItemRepository {
   update(id: number, input: Partial<OrderItem>): Promise<OrderItem>;
   delete(id: number): Promise<void>;
 }
-

@@ -64,4 +64,3 @@ export default class FakeEventPostRepository implements IEventPostRepository {
     this.posts.splice(postIndex, 1);
   }
 }
-

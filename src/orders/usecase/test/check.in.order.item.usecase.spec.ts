@@ -74,7 +74,7 @@ describe('CheckInOrderItemUseCase', () => {
 
       const updatedItem = await fakeOrderItemRepository.findById(orderItem.id);
       expect(updatedItem?.isUsed).toBe(true);
-      expect(updatedItem?.checkedInBy).toBe(checkedInBy);
+      expect(updatedItem?.checkedInBy).toBe(String(checkedInBy));
     });
   });
 
@@ -100,9 +100,7 @@ describe('CheckInOrderItemUseCase', () => {
       const event = new EventTestBuilder().inThePast().build();
       await fakeEventRepository.create(event);
 
-      const ticket = new TicketTestBuilder()
-        .withEventId(event.id)
-        .build();
+      const ticket = new TicketTestBuilder().withEventId(event.id).build();
       await fakeTicketRepository.create(ticket);
 
       const order = new OrderTestBuilder()
@@ -136,9 +134,7 @@ describe('CheckInOrderItemUseCase', () => {
       const event = new EventTestBuilder().inThePast().build();
       await fakeEventRepository.create(event);
 
-      const ticket = new TicketTestBuilder()
-        .withEventId(event.id)
-        .build();
+      const ticket = new TicketTestBuilder().withEventId(event.id).build();
       await fakeTicketRepository.create(ticket);
 
       const order = new OrderTestBuilder()
@@ -172,9 +168,7 @@ describe('CheckInOrderItemUseCase', () => {
       const event = new EventTestBuilder().inTheFuture().build();
       await fakeEventRepository.create(event);
 
-      const ticket = new TicketTestBuilder()
-        .withEventId(event.id)
-        .build();
+      const ticket = new TicketTestBuilder().withEventId(event.id).build();
       await fakeTicketRepository.create(ticket);
 
       const order = new OrderTestBuilder()

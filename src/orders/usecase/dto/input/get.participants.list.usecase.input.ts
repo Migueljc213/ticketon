@@ -5,4 +5,3 @@ export default class GetParticipantsListUseCaseInput {
     this.eventId = eventId;
   }
 }
-

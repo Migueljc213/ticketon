@@ -62,7 +62,12 @@ export default class HandleWebhookUseCase
         manager.create(PaymentEntity, {
           orderId,
           mpPaymentId: String(mpPayment.id),
-          status: mpStatus === 'approved' ? 'approved' : mpStatus === 'pending' ? 'pending' : 'rejected',
+          status:
+            mpStatus === 'approved'
+              ? 'approved'
+              : mpStatus === 'pending'
+                ? 'pending'
+                : 'rejected',
           paymentMethod,
           amount: Number(mpPayment.transaction_amount ?? 0),
           rawResponse: mpPayment as unknown as object,
@@ -92,7 +97,9 @@ export default class HandleWebhookUseCase
           }
         }
 
-        this.logger.log(`Order ${orderId} confirmed — ${order.items.reduce((s, i) => s + i.quantity, 0)} tickets issued`);
+        this.logger.log(
+          `Order ${orderId} confirmed — ${order.items.reduce((s, i) => s + i.quantity, 0)} tickets issued`,
+        );
       } else if (mpStatus === 'rejected' || mpStatus === 'cancelled') {
         // Cancela o pedido e devolve o estoque
         await manager.update(Order, orderId, { status: OrderStatus.CANCELLED });

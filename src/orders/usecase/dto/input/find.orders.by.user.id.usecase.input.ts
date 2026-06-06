@@ -5,4 +5,3 @@ export default class FindOrdersByUserIdUseCaseInput {
     this.userId = userId;
   }
 }
-

@@ -9,7 +9,10 @@ import { PurchasedTicketRepositoryToken } from './purchased-ticket.token';
   imports: [TypeOrmModule.forFeature([PurchasedTicket])],
   controllers: [PurchasedTicketController],
   providers: [
-    { provide: PurchasedTicketRepositoryToken, useClass: PurchasedTicketRepository },
+    {
+      provide: PurchasedTicketRepositoryToken,
+      useClass: PurchasedTicketRepository,
+    },
   ],
   exports: [PurchasedTicketRepositoryToken],
 })

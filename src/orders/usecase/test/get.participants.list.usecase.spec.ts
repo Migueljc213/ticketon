@@ -31,9 +31,7 @@ describe('GetParticipantsListUseCase', () => {
     it('should return participants list for an event with paid orders', async () => {
       // Arrange
       const eventId = TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID;
-      const ticket = new TicketTestBuilder()
-        .withEventId(eventId)
-        .build();
+      const ticket = new TicketTestBuilder().withEventId(eventId).build();
       await fakeTicketRepository.create(ticket);
 
       const order = new OrderTestBuilder()

@@ -6,10 +6,21 @@ export default class Organizer extends BaseEntity {
   @Column({ name: 'user_id', nullable: false })
   userId: number;
 
-  @Column({ name: 'company_name', type: 'varchar', length: 255, nullable: false })
+  @Column({
+    name: 'company_name',
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+  })
   companyName: string;
 
-  @Column({ name: 'cnpj', type: 'varchar', length: 14, nullable: false, unique: true })
+  @Column({
+    name: 'cnpj',
+    type: 'varchar',
+    length: 14,
+    nullable: false,
+    unique: true,
+  })
   cnpj: string;
 
   @Column({ name: 'phone', type: 'varchar', length: 20, nullable: false })
@@ -34,7 +45,7 @@ export default class Organizer extends BaseEntity {
   logoUrl: string | null;
 
   @Column({ name: 'website', type: 'text', nullable: true })
-  website: string| null;
+  website: string | null;
 
   @Column({ name: 'is_verified', default: false })
   isVerified: boolean;

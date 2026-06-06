@@ -5,4 +5,3 @@ export default class FindEventPostsByEventIdUseCaseInput {
     this.eventId = eventId;
   }
 }
-

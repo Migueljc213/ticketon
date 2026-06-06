@@ -73,4 +73,3 @@ export default class FakeOrderRepository implements IOrderRepository {
     this.orders.splice(orderIndex, 1);
   }
 }
-

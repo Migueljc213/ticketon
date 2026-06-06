@@ -45,4 +45,3 @@ export default class GetParticipantsListUseCaseOutput {
     this.participants = participants;
   }
 }
-

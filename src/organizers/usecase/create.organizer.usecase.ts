@@ -7,8 +7,7 @@ import CreateOrganizerUseCaseOutput from './dto/output/create.organizer.usecase.
 
 @Injectable()
 export default class CreateOrganizerUseCase
-  implements
-    IUsecase<CreateOrganizerUseCaseInput, CreateOrganizerUseCaseOutput>
+  implements IUsecase<CreateOrganizerUseCaseInput, CreateOrganizerUseCaseOutput>
 {
   private readonly logger = new Logger(CreateOrganizerUseCase.name);
 

@@ -10,7 +10,14 @@ import OrderItem from 'src/orders/domain/entity/OrderItem.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PaymentEntity, Order, OrderItem, PurchasedTicket])],
+  imports: [
+    TypeOrmModule.forFeature([
+      PaymentEntity,
+      Order,
+      OrderItem,
+      PurchasedTicket,
+    ]),
+  ],
   controllers: [PaymentController],
   providers: [
     MercadoPagoService,

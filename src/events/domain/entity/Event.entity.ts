@@ -21,7 +21,12 @@ export default class Event extends BaseEntity {
   @Column({ name: 'event_end_date', type: 'datetime', nullable: true })
   eventEndDate: Date | null;
 
-  @Column({ name: 'location_type', type: 'varchar', length: 20, nullable: false })
+  @Column({
+    name: 'location_type',
+    type: 'varchar',
+    length: 20,
+    nullable: false,
+  })
   locationType: string;
 
   @Column({ name: 'venue_name', type: 'varchar', length: 255, nullable: true })

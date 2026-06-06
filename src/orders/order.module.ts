@@ -18,7 +18,10 @@ import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket
 import PaymentModule from 'src/payments/payment.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, OrderItem, Ticket, PurchasedTicket]), PaymentModule],
+  imports: [
+    TypeOrmModule.forFeature([Order, OrderItem, Ticket, PurchasedTicket]),
+    PaymentModule,
+  ],
   controllers: [OrderController],
   providers: [
     { provide: OrderRepositoryToken, useClass: OrderRepository },

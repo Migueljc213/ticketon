@@ -7,4 +7,3 @@ export default class CheckInOrderItemUseCaseInput {
     this.checkedInBy = checkedInBy;
   }
 }
-

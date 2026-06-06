@@ -3,10 +3,7 @@ import type IOrderItemRepository from '../domain/interface/order-item.repository
 import type IOrderRepository from '../domain/interface/order.repository.interface';
 import type IEventRepository from 'src/events/domain/interface/event.repository.interface';
 import type ITicketRepository from 'src/tickets/domain/interface/ticket.repository.interface';
-import {
-  OrderItemRepositoryToken,
-  OrderRepositoryToken,
-} from '../order.token';
+import { OrderItemRepositoryToken, OrderRepositoryToken } from '../order.token';
 import { EventRepositoryToken } from 'src/events/event.token';
 import { TicketRepositoryToken } from 'src/tickets/ticket.token';
 import IUsecase from 'src/common/interfaces/IUseCase';
@@ -39,9 +36,7 @@ export default class FindOrderItemByQrCodeUseCase
   ): Promise<FindOrderItemByQrCodeUseCaseOutput> {
     this.logger.log('Finding order item by QR code', input.qrCode);
 
-    const orderItem = await this.orderItemRepository.findByQrCode(
-      input.qrCode,
-    );
+    const orderItem = await this.orderItemRepository.findByQrCode(input.qrCode);
 
     if (!orderItem) {
       throw new Error('QR Code não encontrado');
@@ -62,7 +57,11 @@ export default class FindOrderItemByQrCodeUseCase
       throw new Error('Ingresso não encontrado');
     }
 
-    return new FindOrderItemByQrCodeUseCaseOutput(orderItem, order, event, ticket);
+    return new FindOrderItemByQrCodeUseCaseOutput(
+      orderItem,
+      order,
+      event,
+      ticket,
+    );
   }
 }
-

@@ -39,4 +39,3 @@ export default class FindOrdersByUserIdUseCase
     return new FindOrdersByUserIdUseCaseOutput(ordersWithItems);
   }
 }
-

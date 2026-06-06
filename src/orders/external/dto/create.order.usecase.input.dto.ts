@@ -51,4 +51,3 @@ export default class CreateOrderUseCaseInputDto extends PartialClass<CreateOrder
   @IsNotEmpty()
   items: OrderItemDto[];
 }
-

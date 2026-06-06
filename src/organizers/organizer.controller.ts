@@ -62,7 +62,10 @@ export default class OrganizerController {
       UpdateOrganizerUseCaseOutput
     >,
     @Inject(DeleteOrganizerToken)
-    private readonly deleteOrganizer: IUsecase<DeleteOrganizerUseCaseInput, void>,
+    private readonly deleteOrganizer: IUsecase<
+      DeleteOrganizerUseCaseInput,
+      void
+    >,
     @Inject(ApproveOrganizerToken)
     private readonly approveOrganizerUseCase: IUsecase<
       ApproveOrganizerUseCaseInput,
@@ -79,7 +82,9 @@ export default class OrganizerController {
     @Body() input: CreateOrganizerUseCaseInputDto,
   ): Promise<CreateOrganizerUseCaseOutput> {
     try {
-      this.logger.log(`POST /organizers/ body: ${JSON.stringify({ companyName: input.companyName })}`);
+      this.logger.log(
+        `POST /organizers/ body: ${JSON.stringify({ companyName: input.companyName })}`,
+      );
       const useCaseInput = new CreateOrganizerUseCaseInput(input);
       return await this.createOrganizer.run(useCaseInput);
     } catch (e) {
@@ -131,7 +136,9 @@ export default class OrganizerController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteOrganizerById(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  async deleteOrganizerById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
     try {
       this.logger.log(`DELETE /organizers/${id}`);
       const useCaseInput = new DeleteOrganizerUseCaseInput(id);
@@ -150,7 +157,10 @@ export default class OrganizerController {
   ): Promise<ApproveOrganizerUseCaseOutput> {
     try {
       this.logger.log(`PATCH /organizers/${id}/approve`);
-      const useCaseInput = new ApproveOrganizerUseCaseInput(id, body.isVerified);
+      const useCaseInput = new ApproveOrganizerUseCaseInput(
+        id,
+        body.isVerified,
+      );
       return await this.approveOrganizerUseCase.run(useCaseInput);
     } catch (e) {
       throw new BadRequestException(e.message);

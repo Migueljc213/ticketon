@@ -6,4 +6,3 @@ export default class CreateEventPostUseCaseInput extends CreateEventPostUseCaseI
     Object.assign(this, dto);
   }
 }
-

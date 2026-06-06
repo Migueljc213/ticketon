@@ -5,4 +5,3 @@ export default class FindOrderItemByQrCodeUseCaseInput {
     this.qrCode = qrCode;
   }
 }
-

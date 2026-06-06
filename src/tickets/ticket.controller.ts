@@ -51,7 +51,10 @@ export default class TicketController {
       FindTicketByIdUseCaseOutput
     >,
     @Inject(FindAllTicketsToken)
-    private readonly findAllTickets: IUsecase<void, FindAllTicketsUseCaseOutput>,
+    private readonly findAllTickets: IUsecase<
+      void,
+      FindAllTicketsUseCaseOutput
+    >,
     @Inject(UpdateTicketToken)
     private readonly updateTicket: IUsecase<
       UpdateTicketUseCaseInput,
@@ -72,7 +75,9 @@ export default class TicketController {
     @Body() input: CreateTicketUseCaseInputDto,
   ): Promise<CreateTicketUseCaseOutput> {
     try {
-      this.logger.log(`POST /tickets/ body: ${JSON.stringify({ name: input.name })}`);
+      this.logger.log(
+        `POST /tickets/ body: ${JSON.stringify({ name: input.name })}`,
+      );
       const useCaseInput = new CreateTicketUseCaseInput(input);
       return await this.createTicket.run(useCaseInput);
     } catch (e) {

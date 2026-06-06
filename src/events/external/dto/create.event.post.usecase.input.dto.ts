@@ -18,4 +18,3 @@ export default class CreateEventPostUseCaseInputDto extends PartialClass<CreateE
   @IsNotEmpty()
   content: string;
 }
-

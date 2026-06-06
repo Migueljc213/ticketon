@@ -21,7 +21,9 @@ export default class GetPlatformRevenueUseCase
     this.logger.log('Getting platform revenue');
 
     const allOrders = await this.orderRepository.findAll();
-    const paidOrders = allOrders.filter((order) => order.status === OrderStatus.PAID);
+    const paidOrders = allOrders.filter(
+      (order) => order.status === OrderStatus.PAID,
+    );
 
     let totalRevenue = 0;
     const revenueByMonthMap: Map<string, number> = new Map();
@@ -45,8 +47,12 @@ export default class GetPlatformRevenueUseCase
       .map(([month, revenue]) => ({
         month,
         revenue: Number(revenue.toFixed(2)),
-        platformFee: Number((revenue * this.PLATFORM_FEE_PERCENTAGE).toFixed(2)),
-        netRevenue: Number((revenue * (1 - this.PLATFORM_FEE_PERCENTAGE)).toFixed(2)),
+        platformFee: Number(
+          (revenue * this.PLATFORM_FEE_PERCENTAGE).toFixed(2),
+        ),
+        netRevenue: Number(
+          (revenue * (1 - this.PLATFORM_FEE_PERCENTAGE)).toFixed(2),
+        ),
       }))
       .sort((a, b) => a.month.localeCompare(b.month));
 
@@ -59,4 +65,3 @@ export default class GetPlatformRevenueUseCase
     });
   }
 }
-
