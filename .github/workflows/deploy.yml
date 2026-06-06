@@ -1,0 +1,38 @@
+name: Deploy Backend NestJS to EC2
+
+# Define quando o robô deve trabalhar (Toda vez que tiver push na main)
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Conectando via SSH e atualizando o servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          # Estes são os comandos que o GitHub vai rodar dentro da sua AWS
+          script: |
+            cd ~/ticketon
+            
+            # 1. Baixa o código novo
+            git pull origin main
+            
+            # 2. Instala novas dependências (se houver)
+            npm install
+            
+            # 3. Refaz a compilação de TypeScript para JavaScript
+            npm run build
+            
+            # 4. Roda as migrações no banco de dados Docker
+            npm run migration:run
+            
+            # 5. Reinicia a API no PM2 sem tempo de inatividade
+            pm2 restart api-ticketon
