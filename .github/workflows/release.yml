@@ -1,0 +1,162 @@
+# =============================================================================
+# GITHUB ACTIONS — Release Automático — Ticketon Backend
+# =============================================================================
+#
+# O que este workflow faz?
+# ────────────────────────
+# Automatiza o processo de criar uma nova versão (release) do software.
+# É disparado de duas formas:
+#   1. Ao criar uma tag Git no formato "v1.2.3" (ex: git tag v1.0.0 && git push --tags)
+#   2. Manualmente pela aba "Actions" do GitHub (workflow_dispatch)
+#
+# O fluxo de release típico:
+#   Código aprovado no PR → merge na main → criar tag vX.Y.Z →
+#   este workflow roda → build + testes → GitHub Release criado automaticamente
+# =============================================================================
+
+name: Release
+
+# =============================================================================
+# ON — gatilhos
+# =============================================================================
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      # ↑ Padrão de tag semântica: v1.0.0, v2.3.1, etc.
+      #   O asterisco (*) é wildcard — qualquer número.
+      #   Você cria a tag assim:
+      #     git tag v1.0.0
+      #     git push origin v1.0.0
+
+  workflow_dispatch:
+    # ↑ Permite disparar manualmente pela interface do GitHub.
+    #   Útil para testar o workflow ou criar um release de emergência.
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
+        # ↑ Campo de texto que aparece na tela quando você dispara manualmente.
+
+# =============================================================================
+# JOBS
+# =============================================================================
+jobs:
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    # Permissões necessárias para criar releases no GitHub
+    permissions:
+      contents: write
+      # ↑ Sem essa permissão, o GITHUB_TOKEN não consegue criar releases.
+      #   O GitHub Actions usa um token temporário (GITHUB_TOKEN) gerado
+      #   automaticamente para cada execução — você não precisa criar um PAT.
+
+    steps:
+      # Faz checkout com histórico completo (necessário para gerar changelog)
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # ↑ fetch-depth: 0 = baixa TODO o histórico git, não apenas o último commit.
+          #   Necessário para que ferramentas de changelog possam ver todos os commits
+          #   desde a última tag.
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+          # ↑ registry-url prepara o ambiente para publicar no npm.
+          #   Descomentado mais abaixo se quiser usar.
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+        # ↑ Compila TypeScript → JavaScript. Garante que o release tem código
+        #   compilado e pronto, não apenas o source TypeScript.
+
+      - name: Run tests
+        run: npm run test:cov
+        # ↑ Roda os testes unitários antes de criar o release.
+        #   Se os testes falharem, o release NÃO é criado. Segurança!
+
+      # -----------------------------------------------------------------------
+      # Extrai a versão: de tag Git OU do input manual
+      # -----------------------------------------------------------------------
+      # Quando vem de uma tag como "refs/tags/v1.2.3":
+      - name: Extract version from tag
+        if: startsWith(github.ref, 'refs/tags/')
+        id: tag_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        # ↑ ${GITHUB_REF#refs/tags/v} remove o prefixo "refs/tags/v" da string.
+        #   refs/tags/v1.2.3 → 1.2.3
+        #   O resultado vai para a variável de output "VERSION".
+
+      # Quando disparado manualmente (workflow_dispatch):
+      - name: Extract version from input
+        if: github.event_name == 'workflow_dispatch'
+        id: input_version
+        run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+
+      # -----------------------------------------------------------------------
+      # Cria o Release no GitHub
+      # -----------------------------------------------------------------------
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        # ↑ Action da comunidade para criar releases. Mais flexível que a oficial.
+        with:
+          tag_name: v${{ steps.tag_version.outputs.VERSION || steps.input_version.outputs.VERSION }}
+          # ↑ O || é um fallback: usa tag_version se disponível, senão input_version.
+
+          name: Release v${{ steps.tag_version.outputs.VERSION || steps.input_version.outputs.VERSION }}
+
+          body: |
+            ## Changes in this Release
+            - See commit history for details
+
+            ## Installation
+            ```bash
+            npm install
+            ```
+          # ↑ Corpo do release em Markdown. Aqui você colocaria um changelog.
+          #   Ferramentas como "conventional-changelog" podem gerar isso automaticamente
+          #   baseado nas mensagens de commit.
+
+          draft: false      # false = publicar imediatamente (true = salvar como rascunho)
+          prerelease: false # true = marcar como versão beta/alpha no GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # ↑ Token automático do GitHub Actions. Tem permissão de criar releases
+          #   no repositório atual. Nunca expira e é gerado a cada execução.
+
+      # Salva os arquivos buildados como artifact do release
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build
+          path: dist/
+          retention-days: 30
+          # ↑ Guarda por 30 dias — útil para baixar e fazer deploy manual
+          #   ou inspecionar o que foi enviado em produção.
+
+      # -----------------------------------------------------------------------
+      # OPCIONAL: Publicar no npm
+      # -----------------------------------------------------------------------
+      # Descomente abaixo se quiser publicar automaticamente no npm.
+      # Você precisará:
+      #   1. Criar conta em npmjs.com
+      #   2. Gerar token: npm login → npm token create
+      #   3. Adicionar o token em GitHub → Settings → Secrets → NPM_TOKEN
+      #
+      # - name: Publish to npm
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   run: npm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

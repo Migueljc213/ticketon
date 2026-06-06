@@ -1,0 +1,10 @@
+export const EventRepositoryToken = 'EventRepositoryToken';
+export const EventPostRepositoryToken = 'EventPostRepositoryToken';
+export const CreateEventToken = 'CreateEventToken';
+export const FindEventByIdToken = 'FindEventByIdToken';
+export const FindAllEventsToken = 'FindAllEventsToken';
+export const SearchEventsToken = 'SearchEventsToken';
+export const UpdateEventToken = 'UpdateEventToken';
+export const DeleteEventToken = 'DeleteEventToken';
+export const CreateEventPostToken = 'CreateEventPostToken';
+export const FindEventPostsByEventIdToken = 'FindEventPostsByEventIdToken';
