@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import AppController from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SeedService } from './common/seed/seed.service';
 import { dataSourceOptions } from './data-source';
 import { ConfigModule } from '@nestjs/config';
 import UserModule from './users/user.module';
@@ -28,7 +29,11 @@ import EventPost from './event-posts/domain/entity/EventPost.entity';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forRoot({
+      ...dataSourceOptions,
+      retryAttempts: 10,
+      retryDelay: 3000,
+    }),
     TypeOrmModule.forFeature([
       User,
       Organizer,
@@ -50,6 +55,6 @@ import EventPost from './event-posts/domain/entity/EventPost.entity';
     PurchasedTicketModule,
     EventPostModule,
   ],
-  providers: [],
+  providers: [SeedService],
 })
 export class AppModule {}

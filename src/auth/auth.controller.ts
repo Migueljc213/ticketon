@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   HttpCode,
@@ -7,6 +6,7 @@ import {
   Inject,
   Logger,
   Post,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { LoginUseCaseToken } from './auth.token';
 import type IUsecase from 'src/common/interfaces/IUseCase';
@@ -38,7 +38,7 @@ export default class AuthController {
       const useCaseInput = new LoginUseCaseInput(input);
       return await this.loginUseCase.run(useCaseInput);
     } catch (e) {
-      throw new BadRequestException(e.message);
+      throw new UnauthorizedException('E-mail ou senha incorretos');
     }
   }
 }

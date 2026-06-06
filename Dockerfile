@@ -1,4 +1,20 @@
 # ================================
+# ESTÁGIO: Desenvolvimento (hot-reload)
+# ================================
+FROM node:20-alpine AS dev
+
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:dev"]
+
+# ================================
 # ESTÁGIO: Build de produção
 # ================================
 FROM node:20-alpine AS builder

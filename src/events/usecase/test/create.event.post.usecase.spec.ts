@@ -4,6 +4,7 @@ import FakeEventRepository from 'src/events/external/repository/fakes/fake.event
 import FakeOrderRepository from 'src/orders/external/repository/fakes/fake.order.repository';
 import Event from 'src/events/domain/entity/Event.entity';
 import Order from 'src/orders/domain/entity/Order.entity';
+import { OrderStatus } from 'src/orders/domain/order-status.enum';
 
 describe('CreateEventPostUseCase', () => {
   let createEventPostUseCase: CreateEventPostUseCase;
@@ -64,7 +65,7 @@ describe('CreateEventPostUseCase', () => {
     order.userId = 1;
     order.eventId = 1;
     order.totalAmount = 100;
-    order.status = 'paid';
+    order.status = OrderStatus.PAID;
     order.customerName = 'John Doe';
     order.customerEmail = 'john@example.com';
     await fakeOrderRepository.create(order);
@@ -133,7 +134,7 @@ describe('CreateEventPostUseCase', () => {
     order.userId = 2;
     order.eventId = 1;
     order.totalAmount = 100;
-    order.status = 'paid';
+    order.status = OrderStatus.PAID;
     order.customerName = 'John Doe';
     order.customerEmail = 'john@example.com';
     await fakeOrderRepository.create(order);
@@ -166,7 +167,7 @@ describe('CreateEventPostUseCase', () => {
     order.userId = 1;
     order.eventId = 1;
     order.totalAmount = 100;
-    order.status = 'pending';
+    order.status = OrderStatus.PENDING;
     order.customerName = 'John Doe';
     order.customerEmail = 'john@example.com';
     await fakeOrderRepository.create(order);
