@@ -71,7 +71,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           # ↑ cache: 'npm' guarda o cache do npm entre execuções.
           #   Na segunda vez, npm install é muito mais rápido.
@@ -110,7 +110,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -143,7 +143,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -198,9 +198,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
-          # ↑ Healthcheck inline: o GitHub Actions só considera o serviço
-          #   "pronto" quando o healthcheck passar. Evita race condition
-          #   onde a aplicação tenta conectar antes do banco estar up.
 
     # Variáveis de ambiente disponíveis para TODOS os steps deste job
     env:
@@ -219,7 +216,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -255,7 +252,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Run npm audit
