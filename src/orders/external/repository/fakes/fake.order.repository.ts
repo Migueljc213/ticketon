@@ -14,7 +14,7 @@ export default class FakeOrderRepository implements IOrderRepository {
     order.totalAmount = input.totalAmount!;
     order.status = input.status || OrderStatus.PENDING;
     order.paymentMethod = input.paymentMethod || null;
-    order.paymentId = input.paymentId || null;
+    order.mpPaymentId = input.mpPaymentId || null;
     order.customerName = input.customerName!;
     order.customerEmail = input.customerEmail!;
     order.customerPhone = input.customerPhone || null;
@@ -40,6 +40,13 @@ export default class FakeOrderRepository implements IOrderRepository {
 
   async findAll(): Promise<Order[]> {
     return [...this.orders];
+  }
+
+  async findExpiredPending(): Promise<Order[]> {
+    const now = new Date();
+    return this.orders.filter(
+      (o) => o.status === OrderStatus.PENDING && o.expiresAt < now,
+    );
   }
 
   async update(id: number, input: Partial<Order>): Promise<Order> {

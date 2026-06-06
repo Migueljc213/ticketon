@@ -29,7 +29,7 @@ export class OrderTestBuilder {
     this.order.customerPhone =
       overrides?.customerPhone ?? TEST_CONSTANTS.CUSTOMERS.DEFAULT_PHONE;
     this.order.paymentMethod = overrides?.paymentMethod ?? (null as any);
-    this.order.paymentId = overrides?.paymentId ?? (null as any);
+    this.order.mpPaymentId = overrides?.mpPaymentId ?? (null as any);
     this.order.notes = overrides?.notes ?? (null as any);
     this.order.createdAt = overrides?.createdAt ?? new Date();
     this.order.updatedAt = overrides?.updatedAt ?? new Date();
