@@ -4,6 +4,7 @@ import { TicketRepositoryToken } from '../ticket.token';
 import IUsecase from 'src/common/interfaces/IUseCase';
 import UpdateTicketUseCaseInput from './dto/input/update.ticket.usecase.input';
 import UpdateTicketUseCaseOutput from './dto/output/update.ticket.usecase.output';
+import Ticket from '../domain/entity/Ticket.entity';
 
 @Injectable()
 export default class UpdateTicketUseCase
@@ -24,7 +25,7 @@ export default class UpdateTicketUseCase
       throw new Error('Ticket not found');
     }
 
-    const updateData: Partial<UpdateTicketUseCaseInput> = {};
+    const updateData: Partial<Ticket> = {};
 
     if (input.name !== undefined) updateData.name = input.name;
     if (input.description !== undefined) updateData.description = input.description;

@@ -44,11 +44,11 @@ export default class CreateTicketUseCaseInputDto extends PartialClass<CreateTick
 
   @IsDateString()
   @IsOptional()
-  saleStartDate?: string;
+  saleStartDate?: Date;
 
   @IsDateString()
   @IsOptional()
-  saleEndDate?: string;
+  saleEndDate?: Date;
 
   @IsString()
   @IsOptional()

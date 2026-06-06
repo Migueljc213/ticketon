@@ -39,11 +39,11 @@ export default class UpdateTicketUseCaseInputDto extends PartialClass<UpdateTick
 
   @IsDateString()
   @IsOptional()
-  saleStartDate?: string;
+  saleStartDate?: Date;
 
   @IsDateString()
   @IsOptional()
-  saleEndDate?: string;
+  saleEndDate?: Date;
 
   @IsString()
   @IsOptional()

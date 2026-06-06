@@ -1,14 +1,17 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import type IOrderRepository from '../domain/interface/order.repository.interface';
-import type IOrderItemRepository from '../domain/interface/order-item.repository.interface';
-import type ITicketRepository from 'src/tickets/domain/interface/ticket.repository.interface';
-import { OrderRepositoryToken, OrderItemRepositoryToken } from '../order.token';
-import { TicketRepositoryToken } from 'src/tickets/ticket.token';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import IUsecase from 'src/common/interfaces/IUseCase';
 import CreateOrderUseCaseInput from './dto/input/create.order.usecase.input';
 import CreateOrderUseCaseOutput from './dto/output/create.order.usecase.output';
-import { OrderStatus } from '../domain/order-status.enum';
-import * as crypto from 'crypto';
+import Order from '../domain/entity/Order.entity';
+import OrderItem from '../domain/entity/OrderItem.entity';
+import Ticket from 'src/tickets/domain/entity/Ticket.entity';
+import MercadoPagoService from 'src/payments/external/mercadopago.service';
 
 @Injectable()
 export default class CreateOrderUseCase
@@ -17,123 +20,111 @@ export default class CreateOrderUseCase
   private readonly logger = new Logger(CreateOrderUseCase.name);
 
   constructor(
-    @Inject(OrderRepositoryToken)
-    private readonly orderRepository: IOrderRepository,
-    @Inject(OrderItemRepositoryToken)
-    private readonly orderItemRepository: IOrderItemRepository,
-    @Inject(TicketRepositoryToken)
-    private readonly ticketRepository: ITicketRepository,
+    private readonly dataSource: DataSource,
+    private readonly mercadoPagoService: MercadoPagoService,
   ) {}
 
-  async run(
-    input: CreateOrderUseCaseInput,
-  ): Promise<CreateOrderUseCaseOutput> {
-    this.logger.log('Creating order for event', input.eventId);
+  async run(input: CreateOrderUseCaseInput): Promise<CreateOrderUseCaseOutput> {
+    this.logger.log(`Creating order for user ${input.userId}`);
 
-    let totalAmount = 0;
-    const orderItems: any[] = [];
+    return this.dataSource.transaction(async (manager) => {
+      // Pessimistic write lock: garante que nenhuma outra transação
+      // leia/atualize os mesmos ingressos ao mesmo tempo
+      const ticketIds = input.items.map((i) => i.ticketId);
+      const tickets = await manager
+        .createQueryBuilder(Ticket, 't')
+        .setLock('pessimistic_write')
+        .whereInIds(ticketIds)
+        .getMany();
 
-    for (const item of input.items) {
-      const ticket = await this.ticketRepository.findById(item.ticketId);
-      if (!ticket) {
-        throw new Error(`Ticket ${item.ticketId} not found`);
+      if (tickets.length !== ticketIds.length) {
+        throw new NotFoundException('Um ou mais tipos de ingresso não foram encontrados');
       }
 
-      if (ticket.eventId !== input.eventId) {
-        throw new Error(`Ticket ${item.ticketId} does not belong to event ${input.eventId}`);
+      // Valida disponibilidade de estoque
+      for (const item of input.items) {
+        const ticket = tickets.find((t) => t.id === item.ticketId)!;
+        const available = ticket.quantityAvailable - ticket.quantitySold;
+        if (available < item.quantity) {
+          throw new ConflictException(
+            `Ingresso "${ticket.name}" não tem estoque suficiente (disponível: ${available})`,
+          );
+        }
+        if (item.quantity < ticket.minPerOrder || item.quantity > ticket.maxPerOrder) {
+          throw new ConflictException(
+            `Quantidade inválida para "${ticket.name}" (min: ${ticket.minPerOrder}, max: ${ticket.maxPerOrder})`,
+          );
+        }
       }
 
-      if (ticket.quantityAvailable < item.quantity) {
-        throw new Error(`Insufficient tickets available for ticket ${item.ticketId}`);
-      }
+      // Calcula total
+      const totalAmount = input.items.reduce((sum, item) => {
+        const ticket = tickets.find((t) => t.id === item.ticketId)!;
+        return sum + Number(ticket.price) * item.quantity;
+      }, 0);
 
-      if (!ticket.isActive) {
-        throw new Error(`Ticket ${item.ticketId} is not active`);
-      }
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
-      const itemTotal = ticket.price * item.quantity;
-      totalAmount += itemTotal;
-
-      orderItems.push({
-        ticketId: item.ticketId,
-        quantity: item.quantity,
-        unitPrice: ticket.price,
-        totalPrice: itemTotal,
-        ticket,
+      // Cria o pedido
+      const order = manager.create(Order, {
+        userId: input.userId,
+        status: 'pending_payment',
+        totalAmount,
+        expiresAt,
+        mpPreferenceId: null,
+        mpPaymentId: null,
       });
-    }
+      await manager.save(order);
 
-    const order = await this.orderRepository.create({
-      userId: input.userId,
-      eventId: input.eventId,
-      totalAmount,
-      status: OrderStatus.PENDING,
-      paymentMethod: input.paymentMethod || 'pending',
-      customerName: input.customerName,
-      customerEmail: input.customerEmail,
-      customerPhone: input.customerPhone,
-      notes: input.notes,
-    });
+      // Cria os itens e reserva os ingressos atomicamente
+      for (const item of input.items) {
+        const ticket = tickets.find((t) => t.id === item.ticketId)!;
 
-    const createdItems: any[] = [];
-    for (const item of orderItems) {
-      for (let i = 0; i < item.quantity; i++) {
-        const qrCodeData: any = {
-          orderItemId: null,
-          orderId: order.id,
-          ticketId: item.ticketId,
-          eventId: input.eventId,
-          userId: input.userId,
-          timestamp: new Date().toISOString(),
-        };
+        await manager.save(
+          manager.create(OrderItem, {
+            orderId: order.id,
+            ticketId: item.ticketId,
+            quantity: item.quantity,
+            unitPrice: Number(ticket.price),
+          }),
+        );
 
-        const qrCode = this.generateQrCode(qrCodeData);
-
-        const orderItem = await this.orderItemRepository.create({
-          orderId: order.id,
-          ticketId: item.ticketId,
-          quantity: 1,
-          unitPrice: item.unitPrice,
-          totalPrice: item.unitPrice,
-          qrCode,
-          qrCodeData: JSON.stringify(qrCodeData),
-          isUsed: false,
+        // Incrementa quantitySold para reservar o estoque
+        await manager.update(Ticket, ticket.id, {
+          quantitySold: ticket.quantitySold + item.quantity,
         });
-
-        qrCodeData.orderItemId = orderItem.id;
-        orderItem.qrCodeData = JSON.stringify(qrCodeData);
-        await this.orderItemRepository.update(orderItem.id, {
-          qrCodeData: orderItem.qrCodeData,
-        });
-
-        await this.ticketRepository.update(item.ticketId, {
-          quantitySold: item.ticket.quantitySold + 1,
-          quantityAvailable: item.ticket.quantityAvailable - 1,
-        });
-
-        createdItems.push(orderItem);
       }
-    }
 
-    await this.orderRepository.update(order.id, {
-      status: OrderStatus.PAID,
-      paymentMethod: input.paymentMethod || 'simulated',
+      // Cria a preferência no Mercado Pago
+      const preferenceItems = input.items.map((item) => {
+        const ticket = tickets.find((t) => t.id === item.ticketId)!;
+        return {
+          id: String(ticket.id),
+          title: ticket.name,
+          quantity: item.quantity,
+          unit_price: Number(ticket.price),
+          currency_id: 'BRL',
+        };
+      });
+
+      const preference = await this.mercadoPagoService.createPreference({
+        items: preferenceItems,
+        externalReference: String(order.id),
+        backUrl: input.backUrl,
+      });
+
+      // Salva o ID da preferência no pedido
+      await manager.update(Order, order.id, {
+        mpPreferenceId: preference.id,
+      });
+
+      return new CreateOrderUseCaseOutput({
+        orderId: order.id,
+        initPoint: preference.initPoint,
+        sandboxInitPoint: preference.sandboxInitPoint,
+        totalAmount,
+        expiresAt,
+      });
     });
-
-    const updatedOrder = await this.orderRepository.findById(order.id);
-    if (!updatedOrder) {
-      throw new Error('Order not found after creation');
-    }
-
-    this.logger.log('Order created successfully', order.id);
-
-    return new CreateOrderUseCaseOutput(updatedOrder, createdItems);
-  }
-
-  private generateQrCode(data: any): string {
-    const dataString = JSON.stringify(data);
-    const hash = crypto.createHash('sha256').update(dataString).digest('hex');
-    return `TICKET-${hash.substring(0, 32).toUpperCase()}`;
   }
 }
-

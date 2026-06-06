@@ -6,7 +6,7 @@ export default class Ticket extends BaseEntity {
   @Column({ name: 'event_id', nullable: false })
   eventId: number;
 
-  @Column({ name: 'name', length: 255, nullable: false })
+  @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
   name: string;
 
   @Column({ name: 'description', type: 'text', nullable: true })

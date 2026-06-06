@@ -15,6 +15,6 @@ export default class User extends BaseEntity {
   @Column({ name: 'cpf_cnpj', length: '255', nullable: false })
   cpfCnpj: string;
 
-  @Column({ name: 'bank_info', type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'bank_info', type: 'text', nullable: true })
   bankInfo: string | null;
 }

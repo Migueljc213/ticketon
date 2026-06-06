@@ -6,13 +6,13 @@ export default class Event extends BaseEntity {
   @Column({ name: 'organizer_id', nullable: false })
   organizerId: number;
 
-  @Column({ name: 'title', length: 255, nullable: false })
+  @Column({ name: 'title', type: 'varchar', length: 255, nullable: false })
   title: string;
 
   @Column({ name: 'description', type: 'text', nullable: false })
   description: string;
 
-  @Column({ name: 'category', length: 100, nullable: false })
+  @Column({ name: 'category', type: 'varchar', length: 100, nullable: false })
   category: string;
 
   @Column({ name: 'event_date', type: 'datetime', nullable: false })
@@ -21,7 +21,7 @@ export default class Event extends BaseEntity {
   @Column({ name: 'event_end_date', type: 'datetime', nullable: true })
   eventEndDate: Date | null;
 
-  @Column({ name: 'location_type', length: 20, nullable: false })
+  @Column({ name: 'location_type', type: 'varchar', length: 20, nullable: false })
   locationType: string;
 
   @Column({ name: 'venue_name', type: 'varchar', length: 255, nullable: true })

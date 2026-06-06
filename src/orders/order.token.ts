@@ -1,13 +1,5 @@
-export const OrderRepositoryToken = Symbol('OrderRepository');
-export const OrderItemRepositoryToken = Symbol('OrderItemRepository');
-export const CreateOrderToken = Symbol('CreateOrder');
-export const FindOrderByIdToken = Symbol('FindOrderById');
-export const FindOrdersByUserIdToken = Symbol('FindOrdersByUserId');
-export const FindOrdersByEventIdToken = Symbol('FindOrdersByEventId');
-export const UpdateOrderToken = Symbol('UpdateOrder');
-export const FindOrderItemByQrCodeToken = Symbol('FindOrderItemByQrCode');
-export const CheckInOrderItemToken = Symbol('CheckInOrderItem');
-export const GetCheckInDashboardToken = Symbol('GetCheckInDashboard');
-export const GetParticipantsListToken = Symbol('GetParticipantsList');
-export const GetPlatformRevenueToken = Symbol('GetPlatformRevenue');
-
+export const OrderRepositoryToken = 'ORDER_REPOSITORY';
+export const CreateOrderToken = 'CREATE_ORDER_USE_CASE';
+export const FindOrderByIdToken = 'FIND_ORDER_BY_ID_USE_CASE';
+export const FindOrdersByUserToken = 'FIND_ORDERS_BY_USER_USE_CASE';
+export const ExpireOrdersToken = 'EXPIRE_ORDERS_USE_CASE';

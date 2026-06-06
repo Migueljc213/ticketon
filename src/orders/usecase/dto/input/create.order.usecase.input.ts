@@ -1,9 +1,14 @@
-import CreateOrderUseCaseInputDto from 'src/orders/external/dto/create.order.usecase.input.dto';
-
-export default class CreateOrderUseCaseInput extends CreateOrderUseCaseInputDto {
-  constructor(dto: CreateOrderUseCaseInputDto) {
-    super(dto);
-    Object.assign(this, dto);
-  }
+export interface OrderItemInput {
+  ticketId: number;
+  quantity: number;
 }
 
+export default class CreateOrderUseCaseInput {
+  userId: number;
+  items: OrderItemInput[];
+  backUrl?: string;
+
+  constructor(partial: Partial<CreateOrderUseCaseInput>) {
+    Object.assign(this, partial);
+  }
+}

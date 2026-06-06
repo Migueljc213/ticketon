@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import AppController from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from './data-source';
 import { ConfigModule } from '@nestjs/config';
@@ -14,21 +15,40 @@ import Ticket from './tickets/domain/entity/Ticket.entity';
 import OrderModule from './orders/order.module';
 import Order from './orders/domain/entity/Order.entity';
 import OrderItem from './orders/domain/entity/OrderItem.entity';
-import EventPost from './events/domain/entity/EventPost.entity';
+import PaymentModule from './payments/payment.module';
+import PaymentEntity from './payments/domain/entity/Payment.entity';
+import PurchasedTicketModule from './purchased-tickets/purchased-ticket.module';
+import PurchasedTicket from './purchased-tickets/domain/entity/PurchasedTicket.entity';
+import EventPostModule from './event-posts/event-post.module';
+import EventPost from './event-posts/domain/entity/EventPost.entity';
 
 @Module({
+  controllers: [AppController],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
-    TypeOrmModule.forFeature([User, Organizer, Event, Ticket, Order, OrderItem, EventPost]),
+    TypeOrmModule.forFeature([
+      User,
+      Organizer,
+      Event,
+      Ticket,
+      Order,
+      OrderItem,
+      PaymentEntity,
+      PurchasedTicket,
+      EventPost,
+    ]),
     UserModule,
     AuthModule,
     OrganizerModule,
     EventModule,
     TicketModule,
     OrderModule,
+    PaymentModule,
+    PurchasedTicketModule,
+    EventPostModule,
   ],
   providers: [],
 })
