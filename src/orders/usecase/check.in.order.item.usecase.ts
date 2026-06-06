@@ -131,7 +131,7 @@ export default class CheckInOrderItemUseCase
     await this.orderItemRepository.update(orderItem.id, {
       isUsed: true,
       usedAt: new Date(),
-      checkedInBy: input.checkedInBy,
+      checkedInBy: input.checkedInBy != null ? String(input.checkedInBy) : null,
     });
 
     const updatedItem = await this.orderItemRepository.findById(orderItem.id);

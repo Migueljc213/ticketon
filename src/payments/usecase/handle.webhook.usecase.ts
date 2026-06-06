@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import MercadoPagoConfig, { Payment as MpPayment } from 'mercadopago';
 import IUsecase from 'src/common/interfaces/IUseCase';
 import Order from 'src/orders/domain/entity/Order.entity';
+import { OrderStatus } from 'src/orders/domain/order-status.enum';
 import PaymentEntity from '../domain/entity/Payment.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
 
@@ -71,7 +72,7 @@ export default class HandleWebhookUseCase
       if (mpStatus === 'approved') {
         // Confirma o pedido
         await manager.update(Order, orderId, {
-          status: 'paid',
+          status: OrderStatus.PAID,
           mpPaymentId: String(mpPayment.id),
         });
 
@@ -94,7 +95,7 @@ export default class HandleWebhookUseCase
         this.logger.log(`Order ${orderId} confirmed — ${order.items.reduce((s, i) => s + i.quantity, 0)} tickets issued`);
       } else if (mpStatus === 'rejected' || mpStatus === 'cancelled') {
         // Cancela o pedido e devolve o estoque
-        await manager.update(Order, orderId, { status: 'cancelled' });
+        await manager.update(Order, orderId, { status: OrderStatus.CANCELLED });
 
         for (const item of order.items) {
           await manager.decrement(

@@ -10,6 +10,7 @@ import CreateOrderUseCaseInput from './dto/input/create.order.usecase.input';
 import CreateOrderUseCaseOutput from './dto/output/create.order.usecase.output';
 import Order from '../domain/entity/Order.entity';
 import OrderItem from '../domain/entity/OrderItem.entity';
+import { OrderStatus } from '../domain/order-status.enum';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import MercadoPagoService from 'src/payments/external/mercadopago.service';
 
@@ -68,7 +69,7 @@ export default class CreateOrderUseCase
       // Cria o pedido
       const order = manager.create(Order, {
         userId: input.userId,
-        status: 'pending_payment',
+        status: OrderStatus.PENDING,
         totalAmount,
         expiresAt,
         mpPreferenceId: null,
