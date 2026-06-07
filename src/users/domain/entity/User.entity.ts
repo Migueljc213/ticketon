@@ -1,6 +1,8 @@
 import BaseEntity from 'src/common/entities/base.entity';
 import { Column, Entity } from 'typeorm';
 
+export type UserRole = 'participant' | 'organizer' | 'admin';
+
 @Entity({ name: 'users' })
 export default class User extends BaseEntity {
   @Column({ name: 'name', length: '255', nullable: false })
@@ -17,4 +19,7 @@ export default class User extends BaseEntity {
 
   @Column({ name: 'bank_info', type: 'text', nullable: true })
   bankInfo: string | null;
+
+  @Column({ name: 'role', length: 20, nullable: false, default: 'participant' })
+  role: UserRole;
 }

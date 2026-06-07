@@ -119,6 +119,20 @@ export default class EventController {
     }
   }
 
+  @Get('organizer/:organizerId')
+  @HttpCode(HttpStatus.OK)
+  async getByOrganizer(
+    @Param('organizerId', ParseIntPipe) organizerId: number,
+  ): Promise<FindAllEventsUseCaseOutput> {
+    try {
+      this.logger.log(`GET /events/organizer/${organizerId}`);
+      const result = await this.findAllEvents.run();
+      return { events: result.events.filter(e => e.organizerId === organizerId) };
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getEventById(

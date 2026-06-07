@@ -34,12 +34,13 @@ export default class LoginUseCase
       throw new Error('Invalid credentials');
     }
 
-    // Generate JWT token
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = await this.jwtService.signAsync(payload);
+    // Generate JWT token — participants get 30 days; organizers/admins get 1 day
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const expiresIn = user.role === 'participant' ? '30d' : '1d';
+    const accessToken = await this.jwtService.signAsync(payload, { expiresIn });
 
     this.logger.log('Login successful for user', user.email);
 
-    return new LoginUseCaseOutput(accessToken, user.id, user.email);
+    return new LoginUseCaseOutput(accessToken, user.id, user.email, user.name, user.role ?? 'participant');
   }
 }

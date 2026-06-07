@@ -13,6 +13,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -86,6 +87,22 @@ export default class UserController {
       return await this.findAllUsers.run();
     } catch (e) {
       throw new BadRequestException(e.message);
+    }
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getMe(@Req() req: any) {
+    try {
+      this.logger.log(`GET /users/me userId=${req.user.userId}`);
+      const useCaseInput = new FindUserByIdUseCaseInput(req.user.userId);
+      const user = await this.findUserById.run(useCaseInput);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...safe } = user as any;
+      return safe;
+    } catch (e) {
+      throw new NotFoundException(e.message);
     }
   }
 

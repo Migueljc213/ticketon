@@ -22,6 +22,11 @@ import PurchasedTicketModule from './purchased-tickets/purchased-ticket.module';
 import PurchasedTicket from './purchased-tickets/domain/entity/PurchasedTicket.entity';
 import EventPostModule from './event-posts/event-post.module';
 import EventPost from './event-posts/domain/entity/EventPost.entity';
+import UploadModule from './upload/upload.module';
+import EventFeedbackModule from './event-feedbacks/event-feedback.module';
+import EventFeedback from './event-feedbacks/domain/entity/EventFeedback.entity';
+import AnalyticsModule from './analytics/analytics.module';
+import OrganizerContentModule from './organizer-content/organizer-content.module';
 
 @Module({
   controllers: [AppController],
@@ -31,8 +36,8 @@ import EventPost from './event-posts/domain/entity/EventPost.entity';
     }),
     TypeOrmModule.forRoot({
       ...dataSourceOptions,
-      retryAttempts: 10,
-      retryDelay: 3000,
+      retryAttempts: 30,
+      retryDelay: 5000,
     }),
     TypeOrmModule.forFeature([
       User,
@@ -44,6 +49,7 @@ import EventPost from './event-posts/domain/entity/EventPost.entity';
       PaymentEntity,
       PurchasedTicket,
       EventPost,
+      EventFeedback,
     ]),
     UserModule,
     AuthModule,
@@ -54,6 +60,10 @@ import EventPost from './event-posts/domain/entity/EventPost.entity';
     PaymentModule,
     PurchasedTicketModule,
     EventPostModule,
+    UploadModule,
+    EventFeedbackModule,
+    AnalyticsModule,
+    OrganizerContentModule,
   ],
   providers: [SeedService],
 })

@@ -6,6 +6,7 @@ import OrderRepository from './external/repository/order.repository';
 import CreateOrderUseCase from './usecase/create.order.usecase';
 import FindOrderByIdUseCase from './usecase/find.order.by.id.usecase';
 import FindOrdersByUserUseCase from './usecase/find.orders.by.user.usecase';
+import ReleaseExpiredOrdersService from './usecase/release-expired-orders.service';
 import OrderController from './order.controller';
 import {
   CreateOrderToken,
@@ -28,6 +29,7 @@ import PaymentModule from 'src/payments/payment.module';
     { provide: CreateOrderToken, useClass: CreateOrderUseCase },
     { provide: FindOrderByIdToken, useClass: FindOrderByIdUseCase },
     { provide: FindOrdersByUserToken, useClass: FindOrdersByUserUseCase },
+    ReleaseExpiredOrdersService,
   ],
   exports: [OrderRepositoryToken],
 })

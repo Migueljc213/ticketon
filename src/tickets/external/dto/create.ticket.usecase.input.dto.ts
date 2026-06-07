@@ -8,6 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import PartialClass from 'src/domain/partial.class.base';
+import { IsAfterDate } from 'src/common/validators/is-after-date.validator';
 
 export default class CreateTicketUseCaseInputDto extends PartialClass<CreateTicketUseCaseInputDto> {
   @IsNumber()
@@ -48,6 +49,7 @@ export default class CreateTicketUseCaseInputDto extends PartialClass<CreateTick
 
   @IsDateString()
   @IsOptional()
+  @IsAfterDate('saleStartDate', { message: 'Data de fim das vendas deve ser posterior à data de início das vendas' })
   saleEndDate?: Date;
 
   @IsString()

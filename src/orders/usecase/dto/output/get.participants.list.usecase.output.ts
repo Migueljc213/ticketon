@@ -1,8 +1,8 @@
 export class Participant {
   orderId: number;
   orderItemId: number;
-  customerName: string;
-  customerEmail: string;
+  customerName: string | null;
+  customerEmail: string | null;
   customerPhone: string | null;
   ticketName: string;
   ticketPrice: number;
@@ -14,8 +14,8 @@ export class Participant {
   constructor(data: {
     orderId: number;
     orderItemId: number;
-    customerName: string;
-    customerEmail: string;
+    customerName: string | null;
+    customerEmail: string | null;
     customerPhone: string | null;
     ticketName: string;
     ticketPrice: number;

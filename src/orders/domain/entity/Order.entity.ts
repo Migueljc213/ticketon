@@ -51,17 +51,17 @@ export default class Order extends BaseEntity {
     name: 'customer_name',
     type: 'varchar',
     length: 255,
-    nullable: false,
+    nullable: true,
   })
-  customerName: string;
+  customerName: string | null;
 
   @Column({
     name: 'customer_email',
     type: 'varchar',
     length: 255,
-    nullable: false,
+    nullable: true,
   })
-  customerEmail: string;
+  customerEmail: string | null;
 
   @Column({
     name: 'customer_phone',

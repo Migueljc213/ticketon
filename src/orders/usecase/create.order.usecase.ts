@@ -71,9 +71,13 @@ export default class CreateOrderUseCase
 
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
+      // Deriva eventId a partir dos ingressos (todos os itens devem ser do mesmo evento)
+      const eventId = tickets[0].eventId;
+
       // Cria o pedido
       const order = manager.create(Order, {
         userId: input.userId,
+        eventId,
         status: OrderStatus.PENDING,
         totalAmount,
         expiresAt,
