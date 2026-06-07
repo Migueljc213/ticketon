@@ -96,6 +96,9 @@ export default class OrderController {
         userId: req.user.id,
         items: body.items,
         backUrl: body.backUrl,
+        customerGender: body.customerGender,
+        customerAge: body.customerAge,
+        customerNeighborhood: body.customerNeighborhood,
       }),
     );
   }

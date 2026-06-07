@@ -107,6 +107,9 @@ export default class CreateOrderUseCase implements IUsecase<
         expiresAt,
         mpPreferenceId: null,
         mpPaymentId: null,
+        customerGender: input.customerGender ?? null,
+        customerAge: input.customerAge ?? null,
+        customerNeighborhood: input.customerNeighborhood ?? null,
       });
       await manager.save(order);
 
@@ -120,6 +123,7 @@ export default class CreateOrderUseCase implements IUsecase<
             ticketId: item.ticketId,
             quantity: item.quantity,
             unitPrice: Number(ticket.price),
+            totalPrice: Number(ticket.price) * item.quantity,
           }),
         );
 

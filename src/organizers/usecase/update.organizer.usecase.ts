@@ -44,6 +44,10 @@ export default class UpdateOrganizerUseCase implements IUsecase<
       updateData.isVerified = input.isVerified;
     if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
+    if (Object.keys(updateData).length === 0) {
+      return existingOrganizer;
+    }
+
     return this.repository.update(input.id, updateData);
   }
 }

@@ -6,6 +6,8 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  Min,
+  Max,
   ValidateNested,
 } from 'class-validator';
 
@@ -29,4 +31,18 @@ export default class CreateOrderInputDto {
   @IsOptional()
   @IsString()
   backUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  customerGender?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(120)
+  customerAge?: number;
+
+  @IsOptional()
+  @IsString()
+  customerNeighborhood?: string;
 }

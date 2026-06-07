@@ -74,6 +74,15 @@ export default class Order extends BaseEntity {
   @Column({ name: 'notes', type: 'text', nullable: true })
   notes: string | null;
 
+  @Column({ name: 'customer_gender', type: 'varchar', length: 30, nullable: true })
+  customerGender: string | null;
+
+  @Column({ name: 'customer_age', type: 'int', nullable: true })
+  customerAge: number | null;
+
+  @Column({ name: 'customer_neighborhood', type: 'varchar', length: 100, nullable: true })
+  customerNeighborhood: string | null;
+
   @Column({ name: 'expires_at', type: 'datetime', nullable: false })
   expiresAt: Date;
 

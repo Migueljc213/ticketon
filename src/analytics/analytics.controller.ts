@@ -49,6 +49,27 @@ interface TicketBreakdown {
   checkedIn: number;
 }
 
+interface DemographicsData {
+  genderBreakdown: Array<{ gender: string; count: number }>;
+  ageGroups: Array<{ group: string; count: number }>;
+  neighborhoodBreakdown: Array<{ neighborhood: string; count: number }>;
+  totalWithData: number;
+}
+
+interface ConsumptionItem {
+  itemName: string;
+  category: string;
+  totalQuantity: number;
+  totalRevenue: number;
+}
+
+interface ConsumptionData {
+  items: ConsumptionItem[];
+  byCategory: Array<{ category: string; totalQuantity: number; totalRevenue: number }>;
+  totalRevenue: number;
+  totalItems: number;
+}
+
 interface AnalyticsResponse {
   eventId: number;
   revenue: number;
@@ -61,6 +82,8 @@ interface AnalyticsResponse {
   dailySales: Array<{ date: string; count: number; revenue: number }>;
   hourlyCheckin: HourlyBucket[];
   ticketBreakdown: TicketBreakdown[];
+  demographics: DemographicsData;
+  consumption: ConsumptionData;
 }
 
 @Controller('analytics')
@@ -263,6 +286,124 @@ export default class AnalyticsController {
       [eventId],
     );
 
+    // ── Dados Demográficos ─────────────────────────────────────────────────────
+    const genderRaw = await this.ds.query<Array<{ gender: string; count: string }>>(
+      `SELECT
+         COALESCE(o.customer_gender, 'nao_informado') AS gender,
+         COUNT(*) AS count
+       FROM orders o
+       WHERE o.event_id = ? AND o.status = 'paid' AND o.customer_gender IS NOT NULL
+       GROUP BY o.customer_gender
+       ORDER BY count DESC`,
+      [eventId],
+    );
+
+    const ageRaw = await this.ds.query<Array<{ age: string; count: string }>>(
+      `SELECT o.customer_age AS age, COUNT(*) AS count
+       FROM orders o
+       WHERE o.event_id = ? AND o.status = 'paid' AND o.customer_age IS NOT NULL
+       GROUP BY o.customer_age
+       ORDER BY o.customer_age ASC`,
+      [eventId],
+    );
+
+    const neighborhoodRaw = await this.ds.query<Array<{ neighborhood: string; count: string }>>(
+      `SELECT o.customer_neighborhood AS neighborhood, COUNT(*) AS count
+       FROM orders o
+       WHERE o.event_id = ? AND o.status = 'paid' AND o.customer_neighborhood IS NOT NULL
+       GROUP BY o.customer_neighborhood
+       ORDER BY count DESC
+       LIMIT 10`,
+      [eventId],
+    );
+
+    const [demographicsTotalRow] = await this.ds.query<Array<{ total: string }>>(
+      `SELECT COUNT(*) AS total FROM orders o
+       WHERE o.event_id = ? AND o.status = 'paid'
+       AND (o.customer_gender IS NOT NULL OR o.customer_age IS NOT NULL OR o.customer_neighborhood IS NOT NULL)`,
+      [eventId],
+    );
+
+    // Agrupa idades em faixas
+    const ageGroupMap = new Map<string, number>();
+    for (const r of ageRaw) {
+      const age = Number(r.age);
+      let group: string;
+      if (age < 18) group = '<18';
+      else if (age <= 24) group = '18-24';
+      else if (age <= 34) group = '25-34';
+      else if (age <= 44) group = '35-44';
+      else if (age <= 54) group = '45-54';
+      else group = '55+';
+      ageGroupMap.set(group, (ageGroupMap.get(group) ?? 0) + Number(r.count));
+    }
+    const ageGroupOrder = ['<18', '18-24', '25-34', '35-44', '45-54', '55+'];
+    const ageGroups = ageGroupOrder
+      .filter((g) => ageGroupMap.has(g))
+      .map((g) => ({ group: g, count: ageGroupMap.get(g)! }));
+
+    const demographics: DemographicsData = {
+      genderBreakdown: genderRaw.map((r) => ({ gender: r.gender, count: Number(r.count) })),
+      ageGroups,
+      neighborhoodBreakdown: neighborhoodRaw.map((r) => ({
+        neighborhood: r.neighborhood,
+        count: Number(r.count),
+      })),
+      totalWithData: Number(demographicsTotalRow?.total ?? 0),
+    };
+
+    // ── Dados de Consumo ───────────────────────────────────────────────────────
+    const consumptionRaw = await this.ds.query<
+      Array<{ itemName: string; category: string; totalQuantity: string; totalRevenue: string }>
+    >(
+      `SELECT
+         item_name    AS itemName,
+         category,
+         SUM(quantity)    AS totalQuantity,
+         SUM(total_amount) AS totalRevenue
+       FROM event_consumption_records
+       WHERE event_id = ?
+       GROUP BY item_name, category
+       ORDER BY totalQuantity DESC`,
+      [eventId],
+    );
+
+    const consumptionByCategoryRaw = await this.ds.query<
+      Array<{ category: string; totalQuantity: string; totalRevenue: string }>
+    >(
+      `SELECT
+         category,
+         SUM(quantity)     AS totalQuantity,
+         SUM(total_amount) AS totalRevenue
+       FROM event_consumption_records
+       WHERE event_id = ?
+       GROUP BY category
+       ORDER BY totalQuantity DESC`,
+      [eventId],
+    );
+
+    const [consumptionTotals] = await this.ds.query<Array<{ totalRevenue: string; totalItems: string }>>(
+      `SELECT COALESCE(SUM(total_amount), 0) AS totalRevenue, COALESCE(SUM(quantity), 0) AS totalItems
+       FROM event_consumption_records WHERE event_id = ?`,
+      [eventId],
+    );
+
+    const consumption: ConsumptionData = {
+      items: consumptionRaw.map((r) => ({
+        itemName: r.itemName,
+        category: r.category,
+        totalQuantity: Number(r.totalQuantity),
+        totalRevenue: Number(r.totalRevenue),
+      })),
+      byCategory: consumptionByCategoryRaw.map((r) => ({
+        category: r.category,
+        totalQuantity: Number(r.totalQuantity),
+        totalRevenue: Number(r.totalRevenue),
+      })),
+      totalRevenue: Number(consumptionTotals?.totalRevenue ?? 0),
+      totalItems: Number(consumptionTotals?.totalItems ?? 0),
+    };
+
     return {
       eventId,
       revenue: Number(revenueRow.revenue ?? 0),
@@ -286,6 +427,8 @@ export default class AnalyticsController {
         sold: Number(r.sold),
         checkedIn: Number(r.checkedIn),
       })),
+      demographics,
+      consumption,
     };
   }
 }

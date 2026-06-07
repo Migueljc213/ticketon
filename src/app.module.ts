@@ -30,6 +30,8 @@ import OrganizerContentModule from './organizer-content/organizer-content.module
 import EventCollaboratorModule from './event-collaborators/event-collaborator.module';
 import { MailerModule } from './mailer/mailer.module';
 import NotificationsModule from './notifications/notifications.module';
+import EventConsumptionRecordModule from './event-consumption-records/event-consumption-record.module';
+import EventConsumptionRecord from './event-consumption-records/domain/entity/EventConsumptionRecord.entity';
 
 @Module({
   controllers: [AppController],
@@ -53,6 +55,7 @@ import NotificationsModule from './notifications/notifications.module';
       PurchasedTicket,
       EventPost,
       EventFeedback,
+      EventConsumptionRecord,
     ]),
     UserModule,
     AuthModule,
@@ -70,6 +73,7 @@ import NotificationsModule from './notifications/notifications.module';
     EventCollaboratorModule,
     MailerModule,
     NotificationsModule,
+    EventConsumptionRecordModule,
   ],
   providers: [SeedService],
 })
