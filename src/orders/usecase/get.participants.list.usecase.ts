@@ -12,10 +12,10 @@ import GetParticipantsListUseCaseOutput, {
 import { OrderStatus } from '../domain/order-status.enum';
 
 @Injectable()
-export default class GetParticipantsListUseCase
-  implements
-    IUsecase<GetParticipantsListUseCaseInput, GetParticipantsListUseCaseOutput>
-{
+export default class GetParticipantsListUseCase implements IUsecase<
+  GetParticipantsListUseCaseInput,
+  GetParticipantsListUseCaseOutput
+> {
   private readonly logger = new Logger(GetParticipantsListUseCase.name);
 
   constructor(

@@ -6,9 +6,10 @@ import FindOrderByIdUseCaseInput from './dto/input/find.order.by.id.usecase.inpu
 import FindOrderByIdUseCaseOutput from './dto/output/find.order.by.id.usecase.output';
 
 @Injectable()
-export default class FindOrderByIdUseCase
-  implements IUsecase<FindOrderByIdUseCaseInput, FindOrderByIdUseCaseOutput>
-{
+export default class FindOrderByIdUseCase implements IUsecase<
+  FindOrderByIdUseCaseInput,
+  FindOrderByIdUseCaseOutput
+> {
   private readonly logger = new Logger(FindOrderByIdUseCase.name);
 
   constructor(

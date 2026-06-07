@@ -8,6 +8,7 @@ import { HandleWebhookToken } from './payment.token';
 import Order from 'src/orders/domain/entity/Order.entity';
 import OrderItem from 'src/orders/domain/entity/OrderItem.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
+import { MailerModule } from 'src/mailer/mailer.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket
       OrderItem,
       PurchasedTicket,
     ]),
+    MailerModule,
   ],
   controllers: [PaymentController],
   providers: [

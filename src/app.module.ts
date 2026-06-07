@@ -27,6 +27,9 @@ import EventFeedbackModule from './event-feedbacks/event-feedback.module';
 import EventFeedback from './event-feedbacks/domain/entity/EventFeedback.entity';
 import AnalyticsModule from './analytics/analytics.module';
 import OrganizerContentModule from './organizer-content/organizer-content.module';
+import EventCollaboratorModule from './event-collaborators/event-collaborator.module';
+import { MailerModule } from './mailer/mailer.module';
+import NotificationsModule from './notifications/notifications.module';
 
 @Module({
   controllers: [AppController],
@@ -64,6 +67,9 @@ import OrganizerContentModule from './organizer-content/organizer-content.module
     EventFeedbackModule,
     AnalyticsModule,
     OrganizerContentModule,
+    EventCollaboratorModule,
+    MailerModule,
+    NotificationsModule,
   ],
   providers: [SeedService],
 })

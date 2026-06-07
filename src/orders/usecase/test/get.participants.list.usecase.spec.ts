@@ -60,7 +60,7 @@ describe('GetParticipantsListUseCase', () => {
       await fakeOrderItemRepository.create(item2);
 
       // Act
-      const result = await getParticipantsListUseCase.run({ eventId } as any);
+      const result = await getParticipantsListUseCase.run({ eventId });
 
       // Assert
       expect(result.participants).toHaveLength(2);
@@ -85,7 +85,7 @@ describe('GetParticipantsListUseCase', () => {
       await fakeOrderRepository.create(order);
 
       // Act
-      const result = await getParticipantsListUseCase.run({ eventId } as any);
+      const result = await getParticipantsListUseCase.run({ eventId });
 
       // Assert
       expect(result.participants).toHaveLength(0);
@@ -98,7 +98,7 @@ describe('GetParticipantsListUseCase', () => {
       // Act
       const result = await getParticipantsListUseCase.run({
         eventId: nonExistentEventId,
-      } as any);
+      });
 
       // Assert
       expect(result.participants).toHaveLength(0);

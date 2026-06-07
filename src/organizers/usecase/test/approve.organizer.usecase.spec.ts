@@ -26,7 +26,7 @@ describe('ApproveOrganizerUseCase', () => {
     const result = await approveOrganizerUseCase.run({
       organizerId: 1,
       isVerified: true,
-    } as any);
+    });
 
     expect(result.isVerified).toBe(true);
     expect(result.id).toBe(1);
@@ -45,7 +45,7 @@ describe('ApproveOrganizerUseCase', () => {
     const result = await approveOrganizerUseCase.run({
       organizerId: 1,
       isVerified: false,
-    } as any);
+    });
 
     expect(result.isVerified).toBe(false);
   });

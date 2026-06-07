@@ -4,6 +4,8 @@ export default class CreateOrderUseCaseOutput {
   sandboxInitPoint: string;
   totalAmount: number;
   expiresAt: Date;
+  ticketCount?: number;
+  bypass?: boolean;
 
   constructor(partial: Partial<CreateOrderUseCaseOutput>) {
     Object.assign(this, partial);

@@ -6,9 +6,10 @@ import FindTicketByIdUseCaseInput from './dto/input/find.ticket.by.id.usecase.in
 import FindTicketByIdUseCaseOutput from './dto/output/find.ticket.by.id.usecase.output';
 
 @Injectable()
-export default class FindTicketByIdUseCase
-  implements IUsecase<FindTicketByIdUseCaseInput, FindTicketByIdUseCaseOutput>
-{
+export default class FindTicketByIdUseCase implements IUsecase<
+  FindTicketByIdUseCaseInput,
+  FindTicketByIdUseCaseOutput
+> {
   private readonly logger = new Logger(FindTicketByIdUseCase.name);
 
   constructor(

@@ -6,9 +6,10 @@ import UpdateEventUseCaseInput from './dto/input/update.event.usecase.input';
 import UpdateEventUseCaseOutput from './dto/output/update.event.usecase.output';
 
 @Injectable()
-export default class UpdateEventUseCase
-  implements IUsecase<UpdateEventUseCaseInput, UpdateEventUseCaseOutput>
-{
+export default class UpdateEventUseCase implements IUsecase<
+  UpdateEventUseCaseInput,
+  UpdateEventUseCaseOutput
+> {
   private readonly logger = new Logger(UpdateEventUseCase.name);
 
   constructor(

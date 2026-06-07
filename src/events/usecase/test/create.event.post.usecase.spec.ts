@@ -40,7 +40,7 @@ describe('CreateEventPostUseCase', () => {
       content: 'Great event!',
     };
 
-    const result = await createEventPostUseCase.run(input as any);
+    const result = await createEventPostUseCase.run(input);
 
     expect(result).toBeDefined();
     expect(result.eventId).toBe(1);
@@ -77,7 +77,7 @@ describe('CreateEventPostUseCase', () => {
       content: 'Great event!',
     };
 
-    const result = await createEventPostUseCase.run(input as any);
+    const result = await createEventPostUseCase.run(input);
 
     expect(result).toBeDefined();
     expect(result.orderId).toBe(1);

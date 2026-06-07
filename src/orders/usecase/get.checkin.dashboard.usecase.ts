@@ -10,10 +10,10 @@ import GetCheckInDashboardUseCaseOutput from './dto/output/get.checkin.dashboard
 import { OrderStatus } from '../domain/order-status.enum';
 
 @Injectable()
-export default class GetCheckInDashboardUseCase
-  implements
-    IUsecase<GetCheckInDashboardUseCaseInput, GetCheckInDashboardUseCaseOutput>
-{
+export default class GetCheckInDashboardUseCase implements IUsecase<
+  GetCheckInDashboardUseCaseInput,
+  GetCheckInDashboardUseCaseOutput
+> {
   private readonly logger = new Logger(GetCheckInDashboardUseCase.name);
   private readonly PLATFORM_FEE_PERCENTAGE = 0.07;
 

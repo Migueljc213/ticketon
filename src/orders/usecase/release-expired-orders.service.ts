@@ -31,8 +31,13 @@ export default class ReleaseExpiredOrdersService
 
   onModuleInit(): void {
     void this.releaseExpiredStock();
-    this.intervalId = setInterval(() => void this.releaseExpiredStock(), 60_000);
-    this.logger.log('Serviço de liberação de estoque iniciado (intervalo: 60s)');
+    this.intervalId = setInterval(
+      () => void this.releaseExpiredStock(),
+      60_000,
+    );
+    this.logger.log(
+      'Serviço de liberação de estoque iniciado (intervalo: 60s)',
+    );
   }
 
   onModuleDestroy(): void {

@@ -6,9 +6,10 @@ import UpdateOrganizerUseCaseInput from './dto/input/update.organizer.usecase.in
 import UpdateOrganizerUseCaseOutput from './dto/output/update.organizer.usecase.output';
 
 @Injectable()
-export default class UpdateOrganizerUseCase
-  implements IUsecase<UpdateOrganizerUseCaseInput, UpdateOrganizerUseCaseOutput>
-{
+export default class UpdateOrganizerUseCase implements IUsecase<
+  UpdateOrganizerUseCaseInput,
+  UpdateOrganizerUseCaseOutput
+> {
   private readonly logger = new Logger(UpdateOrganizerUseCase.name);
 
   constructor(

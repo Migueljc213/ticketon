@@ -7,9 +7,10 @@ import UpdateTicketUseCaseOutput from './dto/output/update.ticket.usecase.output
 import Ticket from '../domain/entity/Ticket.entity';
 
 @Injectable()
-export default class UpdateTicketUseCase
-  implements IUsecase<UpdateTicketUseCaseInput, UpdateTicketUseCaseOutput>
-{
+export default class UpdateTicketUseCase implements IUsecase<
+  UpdateTicketUseCaseInput,
+  UpdateTicketUseCaseOutput
+> {
   private readonly logger = new Logger(UpdateTicketUseCase.name);
 
   constructor(

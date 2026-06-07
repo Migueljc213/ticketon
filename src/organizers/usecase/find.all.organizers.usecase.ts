@@ -5,9 +5,10 @@ import IUsecase from 'src/common/interfaces/IUseCase';
 import FindAllOrganizersUseCaseOutput from './dto/output/find.all.organizers.usecase.output';
 
 @Injectable()
-export default class FindAllOrganizersUseCase
-  implements IUsecase<void, FindAllOrganizersUseCaseOutput>
-{
+export default class FindAllOrganizersUseCase implements IUsecase<
+  void,
+  FindAllOrganizersUseCaseOutput
+> {
   private readonly logger = new Logger(FindAllOrganizersUseCase.name);
 
   constructor(

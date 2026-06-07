@@ -6,10 +6,10 @@ import ApproveOrganizerUseCaseInput from './dto/input/approve.organizer.usecase.
 import ApproveOrganizerUseCaseOutput from './dto/output/approve.organizer.usecase.output';
 
 @Injectable()
-export default class ApproveOrganizerUseCase
-  implements
-    IUsecase<ApproveOrganizerUseCaseInput, ApproveOrganizerUseCaseOutput>
-{
+export default class ApproveOrganizerUseCase implements IUsecase<
+  ApproveOrganizerUseCaseInput,
+  ApproveOrganizerUseCaseOutput
+> {
   private readonly logger = new Logger(ApproveOrganizerUseCase.name);
 
   constructor(

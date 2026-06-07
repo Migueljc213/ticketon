@@ -6,9 +6,10 @@ import CreateTicketUseCaseInput from './dto/input/create.ticket.usecase.input';
 import CreateTicketUseCaseOutput from './dto/output/create.ticket.usecase.output';
 
 @Injectable()
-export default class CreateTicketUseCase
-  implements IUsecase<CreateTicketUseCaseInput, CreateTicketUseCaseOutput>
-{
+export default class CreateTicketUseCase implements IUsecase<
+  CreateTicketUseCaseInput,
+  CreateTicketUseCaseOutput
+> {
   private readonly logger = new Logger(CreateTicketUseCase.name);
 
   constructor(

@@ -6,10 +6,10 @@ import FindOrganizerByIdUseCaseInput from './dto/input/find.organizer.by.id.usec
 import FindOrganizerByIdUseCaseOutput from './dto/output/find.organizer.by.id.usecase.output';
 
 @Injectable()
-export default class FindOrganizerByIdUseCase
-  implements
-    IUsecase<FindOrganizerByIdUseCaseInput, FindOrganizerByIdUseCaseOutput>
-{
+export default class FindOrganizerByIdUseCase implements IUsecase<
+  FindOrganizerByIdUseCaseInput,
+  FindOrganizerByIdUseCaseOutput
+> {
   private readonly logger = new Logger(FindOrganizerByIdUseCase.name);
 
   constructor(

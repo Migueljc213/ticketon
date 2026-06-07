@@ -14,7 +14,7 @@ describe('Create user usecase', () => {
       password: 'teste123',
     };
 
-    const user = await createUser.run(input as CreateUserUseCaseInputDto);
+    const user = await createUser.run(input);
 
     expect(user.name).toBe('teste');
     expect(user.email).toBe('test@jest.com');

@@ -6,9 +6,10 @@ import CreateEventUseCaseInput from './dto/input/create.event.usecase.input';
 import CreateEventUseCaseOutput from './dto/output/create.event.usecase.output';
 
 @Injectable()
-export default class CreateEventUseCase
-  implements IUsecase<CreateEventUseCaseInput, CreateEventUseCaseOutput>
-{
+export default class CreateEventUseCase implements IUsecase<
+  CreateEventUseCaseInput,
+  CreateEventUseCaseOutput
+> {
   private readonly logger = new Logger(CreateEventUseCase.name);
 
   constructor(

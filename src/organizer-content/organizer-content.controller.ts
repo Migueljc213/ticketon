@@ -15,7 +15,13 @@ import { Request } from 'express';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import JwtAuthGuard from 'src/auth/guards/jwt-auth.guard';
-import { IsArray, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 interface AuthRequest extends Request {
   user: { id: number; email: string };
@@ -35,7 +41,10 @@ class CreatePollDto {
   question: string;
 
   @IsArray({ message: 'As opções devem ser um array' })
-  @MinLength(2, { each: true, message: 'Cada opção deve ter pelo menos 2 caracteres' })
+  @MinLength(2, {
+    each: true,
+    message: 'Cada opção deve ter pelo menos 2 caracteres',
+  })
   options: string[];
 }
 
@@ -91,7 +100,7 @@ export default class OrganizerContentController {
       [organizerId],
     );
 
-    return polls.map(p => {
+    return polls.map((p) => {
       const options: string[] = JSON.parse(p.options as string);
       return { ...p, options };
     });
@@ -101,14 +110,18 @@ export default class OrganizerContentController {
   @Get('polls/:pollId/results')
   @HttpCode(HttpStatus.OK)
   async getPollResults(@Param('pollId', ParseIntPipe) pollId: number) {
-    const rows = await this.ds.query<Array<{ optionIndex: number; count: string }>>(
+    const rows = await this.ds.query<
+      Array<{ optionIndex: number; count: string }>
+    >(
       `SELECT option_index AS optionIndex, COUNT(*) AS count
        FROM poll_votes WHERE poll_id = ?
        GROUP BY option_index`,
       [pollId],
     );
     const votes: Record<number, number> = {};
-    rows.forEach(r => { votes[r.optionIndex] = Number(r.count); });
+    rows.forEach((r) => {
+      votes[r.optionIndex] = Number(r.count);
+    });
     return { pollId, votes };
   }
 
@@ -123,13 +136,20 @@ export default class OrganizerContentController {
   ) {
     await this.assertIsOrganizer(req.user.id, organizerId);
     if (!dto.options || dto.options.length < 2) {
-      throw new UnauthorizedException('A enquete precisa de pelo menos 2 opções');
+      throw new UnauthorizedException(
+        'A enquete precisa de pelo menos 2 opções',
+      );
     }
     const result = await this.ds.query(
       `INSERT INTO organizer_polls (organizer_id, question, options) VALUES (?, ?, ?)`,
       [organizerId, dto.question, JSON.stringify(dto.options)],
     );
-    return { id: result.insertId, organizerId, question: dto.question, options: dto.options };
+    return {
+      id: result.insertId,
+      organizerId,
+      question: dto.question,
+      options: dto.options,
+    };
   }
 
   // ── POST vote ─────────────────────────────────────────────────────────────────

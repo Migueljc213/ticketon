@@ -26,7 +26,9 @@ export default class HasPaidTicketGuard implements CanActivate {
   constructor(private readonly dataSource: DataSource) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<Request & { user: AuthUser }>();
+    const req = context
+      .switchToHttp()
+      .getRequest<Request & { user: AuthUser }>();
     const userId = req.user?.id;
     const eventId = parseInt(req.params.eventId, 10);
 
@@ -38,7 +40,10 @@ export default class HasPaidTicketGuard implements CanActivate {
       .getRepository(PurchasedTicket)
       .createQueryBuilder('pt')
       .innerJoin(Ticket, 't', 't.id = pt.ticketId')
-      .where('t.eventId = :eventId AND pt.userId = :userId', { eventId, userId })
+      .where('t.eventId = :eventId AND pt.userId = :userId', {
+        eventId,
+        userId,
+      })
       .getOne();
 
     if (!ticket) {

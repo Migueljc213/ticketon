@@ -6,9 +6,10 @@ import GetPlatformRevenueUseCaseOutput from './dto/output/get.platform.revenue.u
 import { OrderStatus } from '../domain/order-status.enum';
 
 @Injectable()
-export default class GetPlatformRevenueUseCase
-  implements IUsecase<void, GetPlatformRevenueUseCaseOutput>
-{
+export default class GetPlatformRevenueUseCase implements IUsecase<
+  void,
+  GetPlatformRevenueUseCaseOutput
+> {
   private readonly logger = new Logger(GetPlatformRevenueUseCase.name);
   private readonly PLATFORM_FEE_PERCENTAGE = 0.07;
 

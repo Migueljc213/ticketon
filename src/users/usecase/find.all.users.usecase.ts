@@ -5,9 +5,10 @@ import IUsecase from 'src/common/interfaces/IUseCase';
 import FindAllUsersUseCaseOutput from './dto/output/find.all.users.usecase.output';
 
 @Injectable()
-export default class FindAllUsersUseCase
-  implements IUsecase<void, FindAllUsersUseCaseOutput>
-{
+export default class FindAllUsersUseCase implements IUsecase<
+  void,
+  FindAllUsersUseCaseOutput
+> {
   private readonly logger = new Logger(FindAllUsersUseCase.name);
 
   constructor(

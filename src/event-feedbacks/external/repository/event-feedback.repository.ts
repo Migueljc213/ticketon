@@ -34,8 +34,13 @@ export default class EventFeedbackRepository implements IEventFeedbackRepository
     return this.repo.find({ where: { eventId }, order: { createdAt: 'DESC' } });
   }
 
-  async hasSubmitted(eventId: number, purchasedTicketId: number): Promise<boolean> {
-    const count = await this.repo.count({ where: { eventId, purchasedTicketId } });
+  async hasSubmitted(
+    eventId: number,
+    purchasedTicketId: number,
+  ): Promise<boolean> {
+    const count = await this.repo.count({
+      where: { eventId, purchasedTicketId },
+    });
     return count > 0;
   }
 
@@ -60,21 +65,27 @@ export default class EventFeedbackRepository implements IEventFeedbackRepository
     }
 
     const avg = (arr: number[]) =>
-      arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10 : null;
+      arr.length
+        ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10
+        : null;
 
-    const npsValues = feedbacks.map(f => f.npsScore);
-    const promoters  = feedbacks.filter(f => f.npsScore >= 9).length;
-    const detractors = feedbacks.filter(f => f.npsScore <= 6).length;
-    const passives   = total - promoters - detractors;
-    const npsScore   = Math.round(((promoters - detractors) / total) * 100);
+    const npsValues = feedbacks.map((f) => f.npsScore);
+    const promoters = feedbacks.filter((f) => f.npsScore >= 9).length;
+    const detractors = feedbacks.filter((f) => f.npsScore <= 6).length;
+    const passives = total - promoters - detractors;
+    const npsScore = Math.round(((promoters - detractors) / total) * 100);
 
     const nonNull = <T>(arr: Array<T | null>): T[] =>
       arr.filter((v): v is T => v !== null);
 
     const recentComments = feedbacks
-      .filter(f => f.openComment)
+      .filter((f) => f.openComment)
       .slice(0, 10)
-      .map(f => ({ comment: f.openComment!, npsScore: f.npsScore, createdAt: f.createdAt }));
+      .map((f) => ({
+        comment: f.openComment!,
+        npsScore: f.npsScore,
+        createdAt: f.createdAt,
+      }));
 
     return {
       totalFeedbacks: total,
@@ -83,10 +94,10 @@ export default class EventFeedbackRepository implements IEventFeedbackRepository
       promoters,
       passives,
       detractors,
-      avgSound:     avg(nonNull(feedbacks.map(f => f.soundRating))),
-      avgBathroom:  avg(nonNull(feedbacks.map(f => f.bathroomRating))),
-      avgBarWait:   avg(nonNull(feedbacks.map(f => f.barWaitRating))),
-      avgSecurity:  avg(nonNull(feedbacks.map(f => f.securityRating))),
+      avgSound: avg(nonNull(feedbacks.map((f) => f.soundRating))),
+      avgBathroom: avg(nonNull(feedbacks.map((f) => f.bathroomRating))),
+      avgBarWait: avg(nonNull(feedbacks.map((f) => f.barWaitRating))),
+      avgSecurity: avg(nonNull(feedbacks.map((f) => f.securityRating))),
       recentComments,
     };
   }

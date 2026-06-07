@@ -61,7 +61,7 @@ describe('CreateOrderUseCase', () => {
 
     createOrderUseCase = new CreateOrderUseCase(
       mockDataSource,
-      mockMercadoPagoService,
+      // mockMercadoPagoService, // TODO: reativar com MP
     );
   });
 
@@ -86,10 +86,10 @@ describe('CreateOrderUseCase', () => {
         paymentMethod: 'credit_card',
       };
 
-      const result = await createOrderUseCase.run(input as any);
+      const result = await createOrderUseCase.run(input);
 
       expect(result.orderId).toBeDefined();
-      expect(result.initPoint).toBe('https://www.mercadopago.com/init');
+      expect(result.initPoint).toBe('');
       expect(result.totalAmount).toBe(
         TEST_CONSTANTS.PRICES.DEFAULT_TICKET_PRICE * 2,
       );

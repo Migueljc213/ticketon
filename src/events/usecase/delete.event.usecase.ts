@@ -5,9 +5,10 @@ import IUsecase from 'src/common/interfaces/IUseCase';
 import DeleteEventUseCaseInput from './dto/input/delete.event.usecase.input';
 
 @Injectable()
-export default class DeleteEventUseCase
-  implements IUsecase<DeleteEventUseCaseInput, void>
-{
+export default class DeleteEventUseCase implements IUsecase<
+  DeleteEventUseCaseInput,
+  void
+> {
   private readonly logger = new Logger(DeleteEventUseCase.name);
 
   constructor(

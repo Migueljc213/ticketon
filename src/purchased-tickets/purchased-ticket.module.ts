@@ -9,9 +9,7 @@ import Event from 'src/events/domain/entity/Event.entity';
 import User from 'src/users/domain/entity/User.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([PurchasedTicket, Ticket, Event, User]),
-  ],
+  imports: [TypeOrmModule.forFeature([PurchasedTicket, Ticket, Event, User])],
   controllers: [PurchasedTicketController],
   providers: [
     {

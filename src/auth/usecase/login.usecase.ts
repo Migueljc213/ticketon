@@ -8,9 +8,10 @@ import LoginUseCaseInput from './dto/input/login.usecase.input';
 import LoginUseCaseOutput from './dto/output/login.usecase.output';
 
 @Injectable()
-export default class LoginUseCase
-  implements IUsecase<LoginUseCaseInput, LoginUseCaseOutput>
-{
+export default class LoginUseCase implements IUsecase<
+  LoginUseCaseInput,
+  LoginUseCaseOutput
+> {
   private readonly logger = new Logger(LoginUseCase.name);
 
   constructor(
@@ -41,6 +42,12 @@ export default class LoginUseCase
 
     this.logger.log('Login successful for user', user.email);
 
-    return new LoginUseCaseOutput(accessToken, user.id, user.email, user.name, user.role ?? 'participant');
+    return new LoginUseCaseOutput(
+      accessToken,
+      user.id,
+      user.email,
+      user.name,
+      user.role ?? 'participant',
+    );
   }
 }

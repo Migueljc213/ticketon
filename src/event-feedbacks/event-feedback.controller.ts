@@ -39,7 +39,10 @@ export default class EventFeedbackController {
     const userId = req.user?.id ?? null;
 
     if (dto.purchasedTicketId) {
-      const already = await this.repo.hasSubmitted(eventId, dto.purchasedTicketId);
+      const already = await this.repo.hasSubmitted(
+        eventId,
+        dto.purchasedTicketId,
+      );
       if (already) {
         return { message: 'Você já enviou sua avaliação para este evento.' };
       }

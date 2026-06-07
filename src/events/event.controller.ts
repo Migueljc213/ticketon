@@ -87,11 +87,20 @@ export default class EventController {
     @Query('city') city?: string,
     @Query('state') state?: string,
     @Query('isPublished') isPublished?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ): Promise<FindAllEventsUseCaseOutput> {
     try {
-      this.logger.log(`GET /events/search title=${title} category=${category}`);
+      this.logger.log(
+        `GET /events/search title=${title} category=${category} startDate=${startDate} endDate=${endDate}`,
+      );
       const result = await this.findAllEvents.run();
+
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate + 'T23:59:59') : null;
+
       const filtered = result.events.filter((e) => {
+        if (isPublished === 'true' && !e.isPublished) return false;
         if (title && !e.title?.toLowerCase().includes(title.toLowerCase()))
           return false;
         if (category && e.category !== category) return false;
@@ -99,7 +108,11 @@ export default class EventController {
           return false;
         if (state && e.state?.toLowerCase() !== state.toLowerCase())
           return false;
-        if (isPublished === 'true' && !e.isPublished) return false;
+        if (start || end) {
+          const eventDate = new Date(e.eventDate);
+          if (start && eventDate < start) return false;
+          if (end && eventDate > end) return false;
+        }
         return true;
       });
       return { events: filtered };
@@ -127,7 +140,9 @@ export default class EventController {
     try {
       this.logger.log(`GET /events/organizer/${organizerId}`);
       const result = await this.findAllEvents.run();
-      return { events: result.events.filter(e => e.organizerId === organizerId) };
+      return {
+        events: result.events.filter((e) => e.organizerId === organizerId),
+      };
     } catch (e) {
       throw new BadRequestException(e.message);
     }

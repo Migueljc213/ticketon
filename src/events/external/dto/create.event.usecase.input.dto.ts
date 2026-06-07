@@ -34,7 +34,9 @@ export default class CreateEventUseCaseInputDto extends PartialClass<CreateEvent
 
   @IsDateString()
   @IsOptional()
-  @IsAfterDate('eventDate', { message: 'Data de término deve ser posterior à data de início' })
+  @IsAfterDate('eventDate', {
+    message: 'Data de término deve ser posterior à data de início',
+  })
   eventEndDate?: Date;
 
   @IsString()
@@ -55,13 +57,17 @@ export default class CreateEventUseCaseInputDto extends PartialClass<CreateEvent
 
   @IsString()
   @IsOptional()
-  @ValidateIf((o: { state?: string }) => o.state !== undefined && o.state !== '')
+  @ValidateIf(
+    (o: { state?: string }) => o.state !== undefined && o.state !== '',
+  )
   @Length(2, 2)
   state?: string;
 
   @IsString()
   @IsOptional()
-  @ValidateIf((o: { zipcode?: string }) => o.zipcode !== undefined && o.zipcode !== '')
+  @ValidateIf(
+    (o: { zipcode?: string }) => o.zipcode !== undefined && o.zipcode !== '',
+  )
   @Length(8, 8)
   zipcode?: string;
 

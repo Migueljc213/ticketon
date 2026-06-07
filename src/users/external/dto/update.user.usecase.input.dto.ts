@@ -1,4 +1,4 @@
-import { IsEmail, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 import PartialClass from 'src/domain/partial.class.base';
 
 export default class UpdateUserUseCaseInputDto extends PartialClass<UpdateUserUseCaseInputDto> {
@@ -19,7 +19,7 @@ export default class UpdateUserUseCaseInputDto extends PartialClass<UpdateUserUs
   @IsOptional()
   cpfCnpj?: string;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
   bankInfo?: string;
 }

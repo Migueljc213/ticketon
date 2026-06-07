@@ -65,7 +65,7 @@ describe('CheckInOrderItemUseCase', () => {
       const result = await checkInOrderItemUseCase.run({
         qrCode,
         checkedInBy,
-      } as any);
+      });
 
       // Assert
       expect(result.isValid).toBe(true);
@@ -88,7 +88,7 @@ describe('CheckInOrderItemUseCase', () => {
       const result = await checkInOrderItemUseCase.run({
         qrCode: invalidQrCode,
         checkedInBy,
-      } as any);
+      });
 
       // Assert
       expect(result.isValid).toBe(false);
@@ -122,7 +122,7 @@ describe('CheckInOrderItemUseCase', () => {
       const result = await checkInOrderItemUseCase.run({
         qrCode,
         checkedInBy: TEST_CONSTANTS.IDS.DEFAULT_USER_ID,
-      } as any);
+      });
 
       // Assert
       expect(result.isValid).toBe(false);
@@ -156,7 +156,7 @@ describe('CheckInOrderItemUseCase', () => {
       const result = await checkInOrderItemUseCase.run({
         qrCode,
         checkedInBy: TEST_CONSTANTS.IDS.DEFAULT_USER_ID,
-      } as any);
+      });
 
       // Assert
       expect(result.isValid).toBe(false);
@@ -190,7 +190,7 @@ describe('CheckInOrderItemUseCase', () => {
       const result = await checkInOrderItemUseCase.run({
         qrCode,
         checkedInBy: TEST_CONSTANTS.IDS.DEFAULT_USER_ID,
-      } as any);
+      });
 
       // Assert
       expect(result.isValid).toBe(false);

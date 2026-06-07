@@ -55,7 +55,7 @@ export default class OrderRepository implements IOrderRepository {
   }
 
   async update(id: number, input: Partial<Order>): Promise<Order> {
-    await this.repo.update(id, input as any);
+    await this.repo.update(id, input);
     return this.repo.findOneOrFail({ where: { id }, relations: ['items'] });
   }
 

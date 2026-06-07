@@ -67,7 +67,7 @@ describe('GetCheckInDashboardUseCase', () => {
       await fakeOrderItemRepository.create(item2);
 
       // Act
-      const result = await getCheckInDashboardUseCase.run({ eventId } as any);
+      const result = await getCheckInDashboardUseCase.run({ eventId });
 
       // Assert
       expect(result.totalTicketsSold).toBe(2);
@@ -116,7 +116,7 @@ describe('GetCheckInDashboardUseCase', () => {
       await fakeOrderItemRepository.create(item2);
 
       // Act
-      const result = await getCheckInDashboardUseCase.run({ eventId } as any);
+      const result = await getCheckInDashboardUseCase.run({ eventId });
 
       // Assert
       expect(result.totalTicketsSold).toBe(1); // Only from paid order
@@ -132,7 +132,7 @@ describe('GetCheckInDashboardUseCase', () => {
       // Act
       const result = await getCheckInDashboardUseCase.run({
         eventId: nonExistentEventId,
-      } as any);
+      });
 
       // Assert
       expect(result.totalTicketsSold).toBe(0);

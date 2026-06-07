@@ -9,9 +9,10 @@ import Event from '../domain/entity/Event.entity';
 type EventFilter = (event: Event) => boolean;
 
 @Injectable()
-export default class SearchEventsUseCase
-  implements IUsecase<SearchEventsUseCaseInput, SearchEventsUseCaseOutput>
-{
+export default class SearchEventsUseCase implements IUsecase<
+  SearchEventsUseCaseInput,
+  SearchEventsUseCaseOutput
+> {
   private readonly logger = new Logger(SearchEventsUseCase.name);
 
   constructor(

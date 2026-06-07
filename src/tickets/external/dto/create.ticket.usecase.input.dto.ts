@@ -49,7 +49,10 @@ export default class CreateTicketUseCaseInputDto extends PartialClass<CreateTick
 
   @IsDateString()
   @IsOptional()
-  @IsAfterDate('saleStartDate', { message: 'Data de fim das vendas deve ser posterior à data de início das vendas' })
+  @IsAfterDate('saleStartDate', {
+    message:
+      'Data de fim das vendas deve ser posterior à data de início das vendas',
+  })
   saleEndDate?: Date;
 
   @IsString()

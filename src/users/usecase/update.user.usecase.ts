@@ -7,9 +7,10 @@ import UpdateUserUseCaseInput from './dto/input/update.user.usecase.input';
 import UpdateUserUseCaseOutput from './dto/output/update.user.usecase.output';
 
 @Injectable()
-export default class UpdateUserUseCase
-  implements IUsecase<UpdateUserUseCaseInput, UpdateUserUseCaseOutput>
-{
+export default class UpdateUserUseCase implements IUsecase<
+  UpdateUserUseCaseInput,
+  UpdateUserUseCaseOutput
+> {
   private readonly logger = new Logger(UpdateUserUseCase.name);
 
   constructor(
@@ -45,6 +46,10 @@ export default class UpdateUserUseCase
     if (input.password !== undefined) {
       const saltRounds = 10;
       updateData.password = await bcrypt.hash(input.password, saltRounds);
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return existingUser;
     }
 
     return this.repository.update(input.id, updateData);

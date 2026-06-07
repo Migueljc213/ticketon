@@ -12,10 +12,10 @@ import CheckInOrderItemUseCaseOutput from './dto/output/check.in.order.item.usec
 import { OrderStatus } from '../domain/order-status.enum';
 
 @Injectable()
-export default class CheckInOrderItemUseCase
-  implements
-    IUsecase<CheckInOrderItemUseCaseInput, CheckInOrderItemUseCaseOutput>
-{
+export default class CheckInOrderItemUseCase implements IUsecase<
+  CheckInOrderItemUseCaseInput,
+  CheckInOrderItemUseCaseOutput
+> {
   private readonly logger = new Logger(CheckInOrderItemUseCase.name);
 
   constructor(

@@ -165,8 +165,8 @@ export class OrderItemTestBuilder {
 
   asUnused(): OrderItemTestBuilder {
     this.orderItem.isUsed = false;
-    this.orderItem.usedAt = null as any;
-    this.orderItem.checkedInBy = null as any;
+    this.orderItem.usedAt = null;
+    this.orderItem.checkedInBy = null;
     return this;
   }
 

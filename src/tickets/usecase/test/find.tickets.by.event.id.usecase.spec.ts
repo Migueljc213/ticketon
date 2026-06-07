@@ -41,7 +41,7 @@ describe('FindTicketsByEventIdUseCase', () => {
     ticket3.quantitySold = 0;
     await fakeTicketRepository.create(ticket3);
 
-    const result = await findTicketsByEventIdUseCase.run({ eventId: 1 } as any);
+    const result = await findTicketsByEventIdUseCase.run({ eventId: 1 });
 
     expect(result.tickets).toHaveLength(2);
     expect(result.tickets[0].eventId).toBe(1);
@@ -53,7 +53,7 @@ describe('FindTicketsByEventIdUseCase', () => {
   it('should return empty array when no tickets exist for event', async () => {
     const result = await findTicketsByEventIdUseCase.run({
       eventId: 999,
-    } as any);
+    });
 
     expect(result.tickets).toHaveLength(0);
   });
@@ -77,7 +77,7 @@ describe('FindTicketsByEventIdUseCase', () => {
     ticket2.quantitySold = 0;
     await fakeTicketRepository.create(ticket2);
 
-    const result = await findTicketsByEventIdUseCase.run({ eventId: 1 } as any);
+    const result = await findTicketsByEventIdUseCase.run({ eventId: 1 });
 
     expect(result.tickets).toHaveLength(1);
     expect(result.tickets[0].eventId).toBe(1);

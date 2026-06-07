@@ -7,9 +7,10 @@ import CreateUserUseCaseInputDto from '../external/dto/create.user.usecase.input
 import CreateUserUseCaseOutput from './dto/output/create.user.usecase.output';
 
 @Injectable()
-export default class CreateUserUseCase
-  implements IUsecase<CreateUserUseCaseInputDto, CreateUserUseCaseOutput>
-{
+export default class CreateUserUseCase implements IUsecase<
+  CreateUserUseCaseInputDto,
+  CreateUserUseCaseOutput
+> {
   private readonly logger = new Logger(CreateUserUseCase.name);
   constructor(
     @Inject(UserRepositoryToken) private readonly repository: IUserRepository,

@@ -6,10 +6,10 @@ import FindOrdersByUserUseCaseInput from './dto/input/find.orders.by.user.usecas
 import FindOrdersByUserUseCaseOutput from './dto/output/find.orders.by.user.usecase.output';
 
 @Injectable()
-export default class FindOrdersByUserUseCase
-  implements
-    IUsecase<FindOrdersByUserUseCaseInput, FindOrdersByUserUseCaseOutput>
-{
+export default class FindOrdersByUserUseCase implements IUsecase<
+  FindOrdersByUserUseCaseInput,
+  FindOrdersByUserUseCaseOutput
+> {
   private readonly logger = new Logger(FindOrdersByUserUseCase.name);
 
   constructor(

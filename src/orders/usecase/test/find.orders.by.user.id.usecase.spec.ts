@@ -63,7 +63,7 @@ describe('FindOrdersByUserIdUseCase', () => {
       await fakeOrderItemRepository.create(item2);
 
       // Act
-      const result = await findOrdersByUserIdUseCase.run({ userId } as any);
+      const result = await findOrdersByUserIdUseCase.run({ userId });
 
       // Assert
       expect(result.orders).toHaveLength(2);
@@ -81,7 +81,7 @@ describe('FindOrdersByUserIdUseCase', () => {
       // Act
       const result = await findOrdersByUserIdUseCase.run({
         userId: nonExistentUserId,
-      } as any);
+      });
 
       // Assert
       expect(result.orders).toHaveLength(0);

@@ -9,7 +9,10 @@ import { EventFeedbackRepositoryToken } from './event-feedback.token';
   imports: [TypeOrmModule.forFeature([EventFeedback])],
   controllers: [EventFeedbackController],
   providers: [
-    { provide: EventFeedbackRepositoryToken, useClass: EventFeedbackRepository },
+    {
+      provide: EventFeedbackRepositoryToken,
+      useClass: EventFeedbackRepository,
+    },
   ],
 })
 export default class EventFeedbackModule {}

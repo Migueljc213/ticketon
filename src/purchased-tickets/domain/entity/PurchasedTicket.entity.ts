@@ -29,4 +29,7 @@ export default class PurchasedTicket extends BaseEntity {
 
   @Column({ name: 'used_at', type: 'datetime', nullable: true })
   usedAt: Date | null;
+
+  @Column({ name: 'scanned_by', type: 'int', nullable: true })
+  scannedBy: number | null;
 }

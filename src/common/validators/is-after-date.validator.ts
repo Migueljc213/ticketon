@@ -10,9 +10,14 @@ import {
 export class IsAfterDateConstraint implements ValidatorConstraintInterface {
   validate(value: unknown, args: ValidationArguments): boolean {
     const [relatedPropertyName] = args.constraints as string[];
-    const relatedValue = (args.object as Record<string, unknown>)[relatedPropertyName];
+    const relatedValue = (args.object as Record<string, unknown>)[
+      relatedPropertyName
+    ];
     if (!value || !relatedValue) return true;
-    return new Date(value as string).getTime() > new Date(relatedValue as string).getTime();
+    return (
+      new Date(value as string).getTime() >
+      new Date(relatedValue as string).getTime()
+    );
   }
 
   defaultMessage(args: ValidationArguments): string {
@@ -21,7 +26,10 @@ export class IsAfterDateConstraint implements ValidatorConstraintInterface {
   }
 }
 
-export function IsAfterDate(property: string, validationOptions?: ValidationOptions) {
+export function IsAfterDate(
+  property: string,
+  validationOptions?: ValidationOptions,
+) {
   return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,

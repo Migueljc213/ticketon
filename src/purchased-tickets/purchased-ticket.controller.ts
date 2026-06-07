@@ -26,6 +26,7 @@ interface AuthRequest extends Request {
 
 interface TicketInfo {
   id: number;
+  orderId: number;
   qrCode: string;
   status: string;
   usedAt: string | null;
@@ -62,10 +63,14 @@ export default class PurchasedTicketController {
     private readonly dataSource: DataSource,
   ) {}
 
-  /** Lista todos os ingressos comprados pelo usuário autenticado */
+  /** Lista todos os ingressos comprados pelo usuário autenticado, com dados do evento e lote */
   @Get('my')
   async myTickets(@Req() req: AuthRequest) {
-    return this.repository.findByUserId(req.user.id);
+    const purchased = await this.repository.findByUserId(req.user.id);
+    const infos = await Promise.all(
+      purchased.map((pt) => this.buildTicketInfo(pt.qrCode).catch(() => null)),
+    );
+    return infos.filter(Boolean);
   }
 
   /**
@@ -82,14 +87,15 @@ export default class PurchasedTicketController {
    * Retorna dados enriquecidos (comprador, evento, lote) para exibição na portaria.
    */
   @Patch('validate/:qrCode')
-  async validate(@Param('qrCode') qrCode: string) {
+  async validate(@Param('qrCode') qrCode: string, @Req() req: AuthRequest) {
     const ticket = await this.repository.findByQrCode(qrCode);
 
     if (!ticket) {
-      throw new BadRequestException('QR code inválido — ingresso não encontrado.');
+      throw new BadRequestException(
+        'QR code inválido — ingresso não encontrado.',
+      );
     }
     if (ticket.status === 'used') {
-      // Retorna os dados mesmo assim para o organizador saber quem tentou reutilizar
       const info = await this.buildTicketInfo(qrCode);
       throw new BadRequestException({
         message: 'Ingresso já utilizado.',
@@ -101,10 +107,46 @@ export default class PurchasedTicketController {
       throw new BadRequestException('Ingresso cancelado.');
     }
 
-    await this.repository.markAsUsed(qrCode);
-    this.logger.log(`Ingresso ${qrCode} validado com sucesso`);
+    // Resolve o evento a partir do ticket para checar autorização
+    const ticketEntity = await this.dataSource
+      .getRepository(Ticket)
+      .findOne({ where: { id: ticket.ticketId } });
 
+    if (ticketEntity) {
+      await this.assertCanScan(ticketEntity.eventId, req.user.id);
+    }
+
+    await this.repository.markAsUsed(qrCode);
+
+    // Registra quem realizou o check-in
+    await this.dataSource.query(
+      `UPDATE purchased_tickets SET scanned_by = ? WHERE qr_code = ?`,
+      [req.user.id, qrCode],
+    );
+
+    this.logger.log(`Ingresso ${qrCode} validado por userId=${req.user.id}`);
     return this.buildTicketInfo(qrCode);
+  }
+
+  /** Verifica se o usuário é o organizador ou colaborador autorizado do evento */
+  private async assertCanScan(eventId: number, userId: number): Promise<void> {
+    const [isOrganizer] = await this.dataSource.query(
+      `SELECT e.id FROM events e
+       INNER JOIN organizers o ON o.id = e.organizer_id
+       WHERE e.id = ? AND o.user_id = ?`,
+      [eventId, userId],
+    );
+    if (isOrganizer) return;
+
+    const [isCollaborator] = await this.dataSource.query(
+      `SELECT id FROM event_collaborators WHERE event_id = ? AND user_id = ?`,
+      [eventId, userId],
+    );
+    if (isCollaborator) return;
+
+    throw new BadRequestException(
+      'Sem permissão para validar ingressos neste evento. Solicite ao organizador que o adicione como colaborador.',
+    );
   }
 
   /** Monta resposta enriquecida com dados do comprador, lote e evento */
@@ -113,19 +155,27 @@ export default class PurchasedTicketController {
       .getRepository(PurchasedTicket)
       .findOne({ where: { qrCode } });
 
-    if (!pt) throw new BadRequestException('QR code inválido — ingresso não encontrado.');
+    if (!pt)
+      throw new BadRequestException(
+        'QR code inválido — ingresso não encontrado.',
+      );
 
     const [ticketEntity, user] = await Promise.all([
-      this.dataSource.getRepository(Ticket).findOne({ where: { id: pt.ticketId } }),
+      this.dataSource
+        .getRepository(Ticket)
+        .findOne({ where: { id: pt.ticketId } }),
       this.dataSource.getRepository(User).findOne({ where: { id: pt.userId } }),
     ]);
 
     const event = ticketEntity
-      ? await this.dataSource.getRepository(Event).findOne({ where: { id: ticketEntity.eventId } })
+      ? await this.dataSource
+          .getRepository(Event)
+          .findOne({ where: { id: ticketEntity.eventId } })
       : null;
 
     return {
       id: pt.id,
+      orderId: pt.orderId,
       qrCode: pt.qrCode,
       status: pt.status,
       usedAt: pt.usedAt ? pt.usedAt.toISOString() : null,
@@ -144,7 +194,9 @@ export default class PurchasedTicketController {
       event: {
         id: event?.id ?? 0,
         title: event?.title ?? 'Evento',
-        eventDate: event?.eventDate ? new Date(event.eventDate).toISOString() : '',
+        eventDate: event?.eventDate
+          ? new Date(event.eventDate).toISOString()
+          : '',
         venueName: event?.venueName ?? null,
         city: event?.city ?? null,
       },

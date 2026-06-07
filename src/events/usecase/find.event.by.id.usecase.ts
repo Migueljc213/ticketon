@@ -6,9 +6,10 @@ import FindEventByIdUseCaseInput from './dto/input/find.event.by.id.usecase.inpu
 import FindEventByIdUseCaseOutput from './dto/output/find.event.by.id.usecase.output';
 
 @Injectable()
-export default class FindEventByIdUseCase
-  implements IUsecase<FindEventByIdUseCaseInput, FindEventByIdUseCaseOutput>
-{
+export default class FindEventByIdUseCase implements IUsecase<
+  FindEventByIdUseCaseInput,
+  FindEventByIdUseCaseOutput
+> {
   private readonly logger = new Logger(FindEventByIdUseCase.name);
 
   constructor(

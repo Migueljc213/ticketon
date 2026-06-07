@@ -38,7 +38,10 @@ export default class UploadController {
       limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
       fileFilter: (_, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {
-          return cb(new BadRequestException('Apenas imagens são permitidas'), false);
+          return cb(
+            new BadRequestException('Apenas imagens são permitidas'),
+            false,
+          );
         }
         cb(null, true);
       },
@@ -46,7 +49,8 @@ export default class UploadController {
   )
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('Nenhum arquivo enviado');
-    if (!this.bucket) throw new InternalServerErrorException('Bucket S3 não configurado');
+    if (!this.bucket)
+      throw new InternalServerErrorException('Bucket S3 não configurado');
 
     const ext = file.originalname.split('.').pop() ?? 'jpg';
     const key = `events/${uuidv4()}.${ext}`;

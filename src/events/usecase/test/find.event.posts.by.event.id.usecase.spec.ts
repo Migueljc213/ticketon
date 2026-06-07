@@ -34,7 +34,7 @@ describe('FindEventPostsByEventIdUseCase', () => {
 
     const result = await findEventPostsByEventIdUseCase.run({
       eventId: 1,
-    } as any);
+    });
 
     expect(result.posts).toHaveLength(2);
     expect(result.posts[0].eventId).toBe(1);
@@ -62,7 +62,7 @@ describe('FindEventPostsByEventIdUseCase', () => {
 
     const result = await findEventPostsByEventIdUseCase.run({
       eventId: 1,
-    } as any);
+    });
 
     expect(result.posts).toHaveLength(1);
     expect(result.posts[0].content).toBe('Active post');
@@ -89,7 +89,7 @@ describe('FindEventPostsByEventIdUseCase', () => {
 
     const result = await findEventPostsByEventIdUseCase.run({
       eventId: 1,
-    } as any);
+    });
 
     expect(result.posts).toHaveLength(1);
     expect(result.posts[0].content).toBe('Approved post');
@@ -98,7 +98,7 @@ describe('FindEventPostsByEventIdUseCase', () => {
   it('should return empty array when no posts exist', async () => {
     const result = await findEventPostsByEventIdUseCase.run({
       eventId: 999,
-    } as any);
+    });
 
     expect(result.posts).toHaveLength(0);
   });

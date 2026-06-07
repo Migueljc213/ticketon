@@ -11,13 +11,10 @@ import FindOrderItemByQrCodeUseCaseInput from './dto/input/find.order.item.by.qr
 import FindOrderItemByQrCodeUseCaseOutput from './dto/output/find.order.item.by.qr.code.usecase.output';
 
 @Injectable()
-export default class FindOrderItemByQrCodeUseCase
-  implements
-    IUsecase<
-      FindOrderItemByQrCodeUseCaseInput,
-      FindOrderItemByQrCodeUseCaseOutput
-    >
-{
+export default class FindOrderItemByQrCodeUseCase implements IUsecase<
+  FindOrderItemByQrCodeUseCaseInput,
+  FindOrderItemByQrCodeUseCaseOutput
+> {
   private readonly logger = new Logger(FindOrderItemByQrCodeUseCase.name);
 
   constructor(
