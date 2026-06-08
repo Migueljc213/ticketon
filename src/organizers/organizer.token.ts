@@ -5,3 +5,4 @@ export const FindAllOrganizersToken = 'FindAllOrganizersToken';
 export const UpdateOrganizerToken = 'UpdateOrganizerToken';
 export const DeleteOrganizerToken = 'DeleteOrganizerToken';
 export const ApproveOrganizerToken = 'ApproveOrganizerToken';
+export const RegisterOrganizerToken = 'RegisterOrganizerToken';

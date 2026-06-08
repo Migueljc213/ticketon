@@ -6,6 +6,7 @@ import {
   Logger,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -16,6 +17,7 @@ import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import { Request } from 'express';
 import JwtAuthGuard from 'src/auth/guards/jwt-auth.guard';
 import {
+  CancelOrderToken,
   CreateOrderToken,
   FindOrderByIdToken,
   FindOrdersByUserToken,
@@ -28,6 +30,7 @@ import FindOrderByIdUseCaseOutput from './usecase/dto/output/find.order.by.id.us
 import FindOrdersByUserUseCaseInput from './usecase/dto/input/find.orders.by.user.usecase.input';
 import FindOrdersByUserUseCaseOutput from './usecase/dto/output/find.orders.by.user.usecase.output';
 import CreateOrderInputDto from './external/dto/create.order.input.dto';
+import type { CancelOrderInput, CancelOrderOutput } from './usecase/cancel.order.usecase';
 
 interface AuthRequest extends Request {
   user: { id: number; email: string };
@@ -54,8 +57,52 @@ export default class OrderController {
       FindOrdersByUserUseCaseInput,
       FindOrdersByUserUseCaseOutput
     >,
+    @Inject(CancelOrderToken)
+    private readonly cancelOrder: IUsecase<CancelOrderInput, CancelOrderOutput>,
     private readonly dataSource: DataSource,
   ) {}
+
+  @Get('participants/event/:eventId')
+  async participantsList(@Param('eventId', ParseIntPipe) eventId: number) {
+    this.logger.log(`GET /orders/participants/event/${eventId}`);
+
+    const rows = await this.dataSource.query<Array<Record<string, unknown>>>(
+      `SELECT
+         o.id          AS orderId,
+         oi.id         AS orderItemId,
+         o.customer_name  AS customerName,
+         o.customer_email AS customerEmail,
+         o.customer_phone AS customerPhone,
+         t.name           AS ticketName,
+         oi.unit_price    AS ticketPrice,
+         oi.qr_code       AS qrCode,
+         oi.is_used       AS isCheckedIn,
+         oi.used_at       AS checkedInAt,
+         o.created_at     AS purchasedAt
+       FROM orders o
+       INNER JOIN order_items oi ON oi.order_id = o.id
+       INNER JOIN tickets t ON t.id = oi.ticket_id
+       WHERE o.event_id = ? AND o.status = 'paid'
+       ORDER BY o.created_at DESC`,
+      [eventId],
+    );
+
+    return {
+      participants: rows.map((r) => ({
+        orderId: r.orderId,
+        orderItemId: r.orderItemId,
+        customerName: r.customerName,
+        customerEmail: r.customerEmail,
+        customerPhone: r.customerPhone,
+        ticketName: r.ticketName,
+        ticketPrice: Number(r.ticketPrice),
+        qrCode: r.qrCode,
+        isCheckedIn: Boolean(r.isCheckedIn),
+        checkedInAt: r.checkedInAt,
+        purchasedAt: r.purchasedAt,
+      })),
+    };
+  }
 
   @Get('dashboard/event/:eventId')
   async eventDashboard(@Param('eventId', ParseIntPipe) eventId: number) {
@@ -113,5 +160,14 @@ export default class OrderController {
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.findOrderById.run(new FindOrderByIdUseCaseInput({ id }));
+  }
+
+  @Patch(':id/cancel')
+  async cancel(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthRequest,
+  ) {
+    this.logger.log(`PATCH /orders/${id}/cancel - user ${req.user.id}`);
+    return this.cancelOrder.run({ orderId: id, requestingUserId: req.user.id });
   }
 }

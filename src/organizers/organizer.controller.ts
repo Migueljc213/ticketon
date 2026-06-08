@@ -13,15 +13,18 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
+  ApproveOrganizerToken,
   CreateOrganizerToken,
   DeleteOrganizerToken,
   FindAllOrganizersToken,
   FindOrganizerByIdToken,
+  RegisterOrganizerToken,
   UpdateOrganizerToken,
-  ApproveOrganizerToken,
 } from './organizer.token';
 import type IUsecase from 'src/common/interfaces/IUseCase';
 import CreateOrganizerUseCaseInputDto from './external/dto/create.organizer.usecase.input.dto';
@@ -36,7 +39,16 @@ import UpdateOrganizerUseCaseOutput from './usecase/dto/output/update.organizer.
 import DeleteOrganizerUseCaseInput from './usecase/dto/input/delete.organizer.usecase.input';
 import ApproveOrganizerUseCaseInput from './usecase/dto/input/approve.organizer.usecase.input';
 import ApproveOrganizerUseCaseOutput from './usecase/dto/output/approve.organizer.usecase.output';
+import RegisterOrganizerInputDto from './external/dto/register.organizer.input.dto';
+import type {
+  RegisterOrganizerInput,
+  RegisterOrganizerOutput,
+} from './usecase/register.organizer.usecase';
 import JwtAuthGuard from 'src/auth/guards/jwt-auth.guard';
+
+interface AuthRequest extends Request {
+  user: { id: number; email: string };
+}
 
 @Controller('/organizers')
 export default class OrganizerController {
@@ -71,9 +83,33 @@ export default class OrganizerController {
       ApproveOrganizerUseCaseInput,
       ApproveOrganizerUseCaseOutput
     >,
+    @Inject(RegisterOrganizerToken)
+    private readonly registerOrganizer: IUsecase<
+      RegisterOrganizerInput,
+      RegisterOrganizerOutput
+    >,
   ) {}
 
   private readonly logger = new Logger(OrganizerController.name);
+
+  @Post('register')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async register(
+    @Body() body: RegisterOrganizerInputDto,
+    @Req() req: AuthRequest,
+  ): Promise<RegisterOrganizerOutput> {
+    this.logger.log(`POST /organizers/register - user ${req.user.id}`);
+    return this.registerOrganizer.run({
+      userId: req.user.id,
+      companyName: body.companyName,
+      cnpj: body.cnpj,
+      phone: body.phone,
+      city: body.city,
+      state: body.state,
+      description: body.description,
+    });
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard)

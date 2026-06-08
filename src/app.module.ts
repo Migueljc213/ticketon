@@ -27,6 +27,7 @@ import EventFeedbackModule from './event-feedbacks/event-feedback.module';
 import EventFeedback from './event-feedbacks/domain/entity/EventFeedback.entity';
 import AnalyticsModule from './analytics/analytics.module';
 import OrganizerContentModule from './organizer-content/organizer-content.module';
+import OrganizerStoreModule from './organizer-store/organizer-store.module';
 import EventCollaboratorModule from './event-collaborators/event-collaborator.module';
 import { MailerModule } from './mailer/mailer.module';
 import NotificationsModule from './notifications/notifications.module';
@@ -70,6 +71,7 @@ import EventConsumptionRecord from './event-consumption-records/domain/entity/Ev
     EventFeedbackModule,
     AnalyticsModule,
     OrganizerContentModule,
+    OrganizerStoreModule,
     EventCollaboratorModule,
     MailerModule,
     NotificationsModule,

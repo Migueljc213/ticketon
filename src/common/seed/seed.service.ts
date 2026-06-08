@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { Repository, DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import User from 'src/users/domain/entity/User.entity';
 import Organizer from 'src/organizers/domain/entity/Organizer.entity';
@@ -30,6 +31,8 @@ export class SeedService implements OnModuleInit {
     private readonly orderItemRepo: Repository<OrderItem>,
     @InjectRepository(EventPost)
     private readonly eventPostRepo: Repository<EventPost>,
+    @InjectDataSource()
+    private readonly ds: DataSource,
   ) {}
 
   async onModuleInit() {
@@ -45,6 +48,7 @@ export class SeedService implements OnModuleInit {
     await this.seedTickets(events);
     await this.seedOrdersAndItems(users.cliente, events);
     await this.seedEventPosts(users.organizer, events);
+    await this.seedStoreProducts(organizer.id, events);
 
     this.logger.log('✅ Seed concluído!');
   }
@@ -389,12 +393,16 @@ export class SeedService implements OnModuleInit {
     for (const def of orderDefs) {
       if (!def.ticket) continue;
       const unitPrice = Number(def.ticket.price);
-      const totalAmount = unitPrice * def.quantity;
+      const subtotalAmount = unitPrice * def.quantity;
+      const platformFee = Math.round(subtotalAmount * 0.07 * 100) / 100;
+      const totalAmount = subtotalAmount + platformFee;
 
       const order = this.orderRepo.create({
         userId: cliente.id,
         eventId: def.event.id,
         status: def.status,
+        subtotalAmount,
+        platformFee,
         totalAmount,
         paymentMethod: def.paymentMethod,
         customerName: cliente.name,
@@ -466,5 +474,95 @@ export class SeedService implements OnModuleInit {
       await this.eventPostRepo.save(post);
     }
     this.logger.log('📝 Posts de eventos criados');
+  }
+
+  // ─── STORE PRODUCTS ───────────────────────────────────────────────────────
+  private async seedStoreProducts(organizerId: number, events: Event[]) {
+    // Verifica se a tabela existe (migration pode não ter rodado ainda)
+    const tableExists = await this.ds
+      .query(`SHOW TABLES LIKE 'store_products'`)
+      .then((r: unknown[]) => r.length > 0)
+      .catch(() => false);
+    if (!tableExists) {
+      this.logger.warn('⚠️  Tabela store_products não existe — seed ignorado');
+      return;
+    }
+
+    const festival = events[0]; // Festival de Música Eletrônica
+    const conf     = events[1]; // Conferência de Tecnologia
+    const corrida  = events[4]; // Corrida Urbana 10K
+
+    const products = [
+      {
+        organizerId,
+        eventId: festival.id,
+        name: 'Camiseta Festival 2026',
+        description: 'Camiseta oficial do Festival de Música Eletrônica SP 2026. 100% algodão, disponível nos tamanhos P, M, G e GG.',
+        price: 79.90,
+        stock: 120,
+        imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600',
+        category: 'clothing',
+      },
+      {
+        organizerId,
+        eventId: festival.id,
+        name: 'Óculos de LED Neon',
+        description: 'Óculos especial de LED colorido para curtir o festival com estilo. Bateria inclusa, duração de até 6h.',
+        price: 34.90,
+        stock: 200,
+        imageUrl: 'https://images.unsplash.com/photo-1583394293214-0dfde81f9d49?w=600',
+        category: 'accessories',
+      },
+      {
+        organizerId,
+        eventId: festival.id,
+        name: 'Copo Personalizado 500ml',
+        description: 'Copo oficial do festival em alumínio reutilizável. Leva para casa de lembrança!',
+        price: 29.90,
+        stock: 300,
+        imageUrl: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600',
+        category: 'accessories',
+      },
+      {
+        organizerId,
+        eventId: conf.id,
+        name: 'Livro: IA na Prática',
+        description: 'Coletânea exclusiva de artigos dos palestrantes da Conferência de Tecnologia 2026. Edição limitada assinada.',
+        price: 59.90,
+        stock: 50,
+        imageUrl: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600',
+        category: 'collectibles',
+      },
+      {
+        organizerId,
+        eventId: corrida.id,
+        name: 'Kit Corredor Premium',
+        description: 'Kit completo: camiseta técnica, meião esportivo, boné e porta-celular de braço. Oficial da Corrida 10K SP.',
+        price: 119.90,
+        stock: 80,
+        imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600',
+        category: 'clothing',
+      },
+      {
+        organizerId,
+        eventId: null,
+        name: 'Chaveiro Ticketon',
+        description: 'Chaveiro metálico oficial da Ticketon Produções. Ótimo para colecionadores.',
+        price: 19.90,
+        stock: 500,
+        imageUrl: 'https://images.unsplash.com/photo-1624527843620-87eec35e9de4?w=600',
+        category: 'collectibles',
+      },
+    ];
+
+    for (const p of products) {
+      await this.ds.query(
+        `INSERT INTO store_products
+           (organizer_id, event_id, name, description, price, stock, image_url, category, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+        [p.organizerId, p.eventId, p.name, p.description, p.price, p.stock, p.imageUrl, p.category],
+      );
+    }
+    this.logger.log(`🛍️  ${products.length} produtos da loja criados`);
   }
 }

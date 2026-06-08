@@ -98,8 +98,7 @@ export default class UserController {
       this.logger.log(`GET /users/me userId=${req.user.id}`);
       const useCaseInput = new FindUserByIdUseCaseInput(req.user.id);
       const user = await this.findUserById.run(useCaseInput);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...safe } = user as any;
+      const { password: _pw, ...safe } = user as unknown as Record<string, unknown>;
       return safe;
     } catch (e) {
       throw new NotFoundException(e.message);

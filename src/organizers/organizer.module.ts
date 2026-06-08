@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Organizer from './domain/entity/Organizer.entity';
+import User from 'src/users/domain/entity/User.entity';
 import OrganizerRepository from './external/repository/organizer.repository';
 import {
+  ApproveOrganizerToken,
   CreateOrganizerToken,
   DeleteOrganizerToken,
   FindAllOrganizersToken,
   FindOrganizerByIdToken,
   OrganizerRepositoryToken,
+  RegisterOrganizerToken,
   UpdateOrganizerToken,
-  ApproveOrganizerToken,
 } from './organizer.token';
 import OrganizerController from './organizer.controller';
 import CreateOrganizerUseCase from './usecase/create.organizer.usecase';
@@ -18,9 +20,10 @@ import FindAllOrganizersUseCase from './usecase/find.all.organizers.usecase';
 import UpdateOrganizerUseCase from './usecase/update.organizer.usecase';
 import DeleteOrganizerUseCase from './usecase/delete.organizer.usecase';
 import ApproveOrganizerUseCase from './usecase/approve.organizer.usecase';
+import RegisterOrganizerUseCase from './usecase/register.organizer.usecase';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Organizer])],
+  imports: [TypeOrmModule.forFeature([Organizer, User])],
   controllers: [OrganizerController],
   providers: [
     {
@@ -50,6 +53,10 @@ import ApproveOrganizerUseCase from './usecase/approve.organizer.usecase';
     {
       provide: ApproveOrganizerToken,
       useClass: ApproveOrganizerUseCase,
+    },
+    {
+      provide: RegisterOrganizerToken,
+      useClass: RegisterOrganizerUseCase,
     },
   ],
 })

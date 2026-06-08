@@ -116,6 +116,7 @@ export default class PurchasedTicketController {
       await this.assertCanScan(ticketEntity.eventId, req.user.id);
     }
 
+    const checkedInAt = new Date();
     await this.repository.markAsUsed(qrCode);
 
     // Registra quem realizou o check-in
@@ -123,6 +124,30 @@ export default class PurchasedTicketController {
       `UPDATE purchased_tickets SET scanned_by = ? WHERE qr_code = ?`,
       [req.user.id, qrCode],
     );
+
+    // Notifica o dono do ingresso sobre o check-in realizado
+    if (ticketEntity) {
+      const [eventRow] = await this.dataSource.query<Array<{ title: string; venueName: string | null }>>(
+        `SELECT title, venue_name AS venueName FROM events WHERE id = ?`,
+        [ticketEntity.eventId],
+      );
+      if (eventRow) {
+        const timeStr = checkedInAt.toLocaleString('pt-BR', {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit',
+        });
+        await this.dataSource.query(
+          `INSERT INTO user_notifications (user_id, type, title, body, event_id)
+           VALUES (?, 'check_in', ?, ?, ?)`,
+          [
+            ticket.userId,
+            `✅ Check-in realizado — ${eventRow.title}`,
+            `Seu ingresso "${ticketEntity.name}" foi validado na entrada${eventRow.venueName ? ' em ' + eventRow.venueName : ''}. Horário: ${timeStr}. Aproveite o evento!`,
+            ticketEntity.eventId,
+          ],
+        );
+      }
+    }
 
     this.logger.log(`Ingresso ${qrCode} validado por userId=${req.user.id}`);
     return this.buildTicketInfo(qrCode);

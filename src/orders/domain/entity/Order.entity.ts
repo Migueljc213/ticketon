@@ -15,6 +15,26 @@ export default class Order extends BaseEntity {
   status: OrderStatus;
 
   @Column({
+    name: 'subtotal_amount',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    default: 0,
+  })
+  subtotalAmount: number;
+
+  @Column({
+    name: 'platform_fee',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    default: 0,
+  })
+  platformFee: number;
+
+  @Column({
     name: 'total_amount',
     type: 'decimal',
     precision: 10,

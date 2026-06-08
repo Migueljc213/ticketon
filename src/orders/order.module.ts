@@ -6,9 +6,11 @@ import OrderRepository from './external/repository/order.repository';
 import CreateOrderUseCase from './usecase/create.order.usecase';
 import FindOrderByIdUseCase from './usecase/find.order.by.id.usecase';
 import FindOrdersByUserUseCase from './usecase/find.orders.by.user.usecase';
+import CancelOrderUseCase from './usecase/cancel.order.usecase';
 import ReleaseExpiredOrdersService from './usecase/release-expired-orders.service';
 import OrderController from './order.controller';
 import {
+  CancelOrderToken,
   CreateOrderToken,
   FindOrderByIdToken,
   FindOrdersByUserToken,
@@ -16,12 +18,10 @@ import {
 } from './order.token';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
-// import PaymentModule from 'src/payments/payment.module'; // TODO: reativar com MP
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, Ticket, PurchasedTicket]),
-    // PaymentModule, // TODO: reativar com MP
   ],
   controllers: [OrderController],
   providers: [
@@ -29,6 +29,7 @@ import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket
     { provide: CreateOrderToken, useClass: CreateOrderUseCase },
     { provide: FindOrderByIdToken, useClass: FindOrderByIdUseCase },
     { provide: FindOrdersByUserToken, useClass: FindOrdersByUserUseCase },
+    { provide: CancelOrderToken, useClass: CancelOrderUseCase },
     ReleaseExpiredOrdersService,
   ],
   exports: [OrderRepositoryToken],
