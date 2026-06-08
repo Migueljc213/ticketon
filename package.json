@@ -53,9 +53,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
-    "@nestjs/cli": "^11.0.21",
+    "@nestjs/cli": "^11.0.22",
     "@nestjs/schematics": "^11.1.0",
-    "@nestjs/testing": "^11.1.24",
+    "@nestjs/testing": "^11.1.25",
     "@swc/cli": "^0.8.1",
     "@swc/core": "^1.15.40",
     "@types/bcrypt": "^6.0.0",
@@ -77,7 +77,7 @@
     "ts-loader": "^9.6.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.60.1"
   }
 }
