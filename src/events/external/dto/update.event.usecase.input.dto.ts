@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsDateString,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
@@ -74,4 +75,13 @@ export default class UpdateEventUseCaseInputDto extends PartialClass<UpdateEvent
   @IsBoolean()
   @IsOptional()
   isPublic?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isPublished?: boolean;
+
+  @IsString()
+  @IsOptional()
+  @IsIn(['draft', 'published', 'cancelled'])
+  status?: string;
 }

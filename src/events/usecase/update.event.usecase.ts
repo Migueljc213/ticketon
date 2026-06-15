@@ -48,6 +48,8 @@ export default class UpdateEventUseCase implements IUsecase<
     if (input.maxAttendees !== undefined)
       updateData.maxAttendees = input.maxAttendees;
     if (input.isPublic !== undefined) updateData.isPublic = input.isPublic;
+    if (input.isPublished !== undefined) updateData.isPublished = input.isPublished;
+    if (input.status !== undefined) updateData.status = input.status;
 
     return this.repository.update(input.id, updateData);
   }
