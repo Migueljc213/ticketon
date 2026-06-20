@@ -28,12 +28,10 @@ export default class EventRepository implements IEventRepository {
   }
 
   async update(id: number, input: Partial<Event>): Promise<Event> {
-    await this.repository.update(id, input);
-    const updatedEvent = await this.findById(id);
-    if (!updatedEvent) {
-      throw new Error('Event not found after update');
-    }
-    return updatedEvent;
+    const existing = await this.findById(id);
+    if (!existing) throw new Error('Event not found');
+    Object.assign(existing, input);
+    return this.repository.save(existing);
   }
 
   async delete(id: number): Promise<void> {

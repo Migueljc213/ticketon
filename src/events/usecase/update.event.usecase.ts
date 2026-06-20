@@ -25,31 +25,24 @@ export default class UpdateEventUseCase implements IUsecase<
       throw new Error('Event not found');
     }
 
-    const updateData: Partial<UpdateEventUseCaseInput> = {};
+    const FIELDS = [
+      'organizerId', 'title', 'description', 'category',
+      'eventDate', 'eventEndDate', 'locationType', 'venueName',
+      'address', 'city', 'state', 'zipcode', 'onlineUrl', 'bannerUrl',
+      'maxAttendees', 'isPublic', 'isPublished', 'status',
+    ] as const;
 
-    if (input.organizerId !== undefined)
-      updateData.organizerId = input.organizerId;
-    if (input.title !== undefined) updateData.title = input.title;
-    if (input.description !== undefined)
-      updateData.description = input.description;
-    if (input.category !== undefined) updateData.category = input.category;
-    if (input.eventDate !== undefined) updateData.eventDate = input.eventDate;
-    if (input.eventEndDate !== undefined)
-      updateData.eventEndDate = input.eventEndDate;
-    if (input.locationType !== undefined)
-      updateData.locationType = input.locationType;
-    if (input.venueName !== undefined) updateData.venueName = input.venueName;
-    if (input.address !== undefined) updateData.address = input.address;
-    if (input.city !== undefined) updateData.city = input.city;
-    if (input.state !== undefined) updateData.state = input.state;
-    if (input.zipcode !== undefined) updateData.zipcode = input.zipcode;
-    if (input.onlineUrl !== undefined) updateData.onlineUrl = input.onlineUrl;
-    if (input.bannerUrl !== undefined) updateData.bannerUrl = input.bannerUrl;
-    if (input.maxAttendees !== undefined)
-      updateData.maxAttendees = input.maxAttendees;
-    if (input.isPublic !== undefined) updateData.isPublic = input.isPublic;
-    if (input.isPublished !== undefined) updateData.isPublished = input.isPublished;
-    if (input.status !== undefined) updateData.status = input.status;
+    const inputAny = input as unknown as Record<string, unknown>;
+    const updateData: Partial<typeof existingEvent> = {};
+    for (const field of FIELDS) {
+      if (inputAny[field] !== undefined) {
+        (updateData as Record<string, unknown>)[field] = inputAny[field];
+      }
+    }
+
+    if (input.isPublished === true && !existingEvent.publishedAt) {
+      updateData.publishedAt = new Date();
+    }
 
     return this.repository.update(input.id, updateData);
   }
