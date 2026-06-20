@@ -22,4 +22,7 @@ export default class User extends BaseEntity {
 
   @Column({ name: 'role', length: 20, nullable: false, default: 'participant' })
   role: UserRole;
+
+  @Column({ name: 'avatar_url', type: 'text', nullable: true })
+  avatarUrl: string | null;
 }

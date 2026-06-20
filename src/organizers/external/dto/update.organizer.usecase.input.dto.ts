@@ -40,6 +40,10 @@ export default class UpdateOrganizerUseCaseInputDto extends PartialClass<UpdateO
   @IsOptional()
   website?: string;
 
+  @IsString()
+  @IsOptional()
+  coverUrl?: string;
+
   @IsBoolean()
   @IsOptional()
   isVerified?: boolean;

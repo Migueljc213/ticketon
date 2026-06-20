@@ -47,6 +47,9 @@ export default class Organizer extends BaseEntity {
   @Column({ name: 'website', type: 'text', nullable: true })
   website: string | null;
 
+  @Column({ name: 'cover_url', type: 'text', nullable: true })
+  coverUrl: string | null;
+
   @Column({ name: 'is_verified', default: false })
   isVerified: boolean;
 

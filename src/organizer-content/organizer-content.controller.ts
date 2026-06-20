@@ -18,7 +18,9 @@ import JwtAuthGuard from 'src/auth/guards/jwt-auth.guard';
 import {
   IsArray,
   IsNotEmpty,
+  IsOptional,
   IsString,
+  IsUrl,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -32,6 +34,19 @@ class CreatePostDto {
   @IsNotEmpty({ message: 'O conteúdo é obrigatório' })
   @MaxLength(2000, { message: 'Máximo de 2000 caracteres' })
   content: string;
+
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
+
+  @IsUrl({}, { message: 'Link inválido' })
+  @IsOptional()
+  linkUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  linkTitle?: string;
 }
 
 class CreatePollDto {
@@ -57,7 +72,9 @@ export default class OrganizerContentController {
   @HttpCode(HttpStatus.OK)
   async getPosts(@Param('organizerId', ParseIntPipe) organizerId: number) {
     return this.ds.query<Array<Record<string, unknown>>>(
-      `SELECT id, organizer_id AS organizerId, content, created_at AS createdAt
+      `SELECT id, organizer_id AS organizerId, content,
+              image_url AS imageUrl, link_url AS linkUrl, link_title AS linkTitle,
+              created_at AS createdAt
        FROM organizer_posts
        WHERE organizer_id = ?
        ORDER BY created_at DESC
@@ -77,10 +94,18 @@ export default class OrganizerContentController {
   ) {
     await this.assertIsOrganizer(req.user.id, organizerId);
     const result = await this.ds.query(
-      `INSERT INTO organizer_posts (organizer_id, content) VALUES (?, ?)`,
-      [organizerId, dto.content],
+      `INSERT INTO organizer_posts (organizer_id, content, image_url, link_url, link_title)
+       VALUES (?, ?, ?, ?, ?)`,
+      [organizerId, dto.content, dto.imageUrl ?? null, dto.linkUrl ?? null, dto.linkTitle ?? null],
     );
-    return { id: result.insertId, organizerId, content: dto.content };
+    return {
+      id: result.insertId,
+      organizerId,
+      content: dto.content,
+      imageUrl: dto.imageUrl ?? null,
+      linkUrl: dto.linkUrl ?? null,
+      linkTitle: dto.linkTitle ?? null,
+    };
   }
 
   // ── GET polls ─────────────────────────────────────────────────────────────────

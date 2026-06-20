@@ -13,8 +13,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 import {
   CreateOrganizerToken,
   DeleteOrganizerToken,
@@ -146,6 +152,43 @@ export default class OrganizerController {
     } catch (e) {
       throw new NotFoundException(e.message);
     }
+  }
+
+  @Post(':id/cover')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          const p = join(process.cwd(), 'uploads', 'covers');
+          if (!existsSync(p)) mkdirSync(p, { recursive: true });
+          cb(null, p);
+        },
+        filename: (_req, file, cb) => {
+          const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
+          cb(null, `${unique}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter: (_req, file, cb) => {
+        if (!file.mimetype.match(/^image\/(jpeg|png|gif|webp)$/)) {
+          cb(new BadRequestException('Apenas imagens são permitidas.'), false);
+        } else {
+          cb(null, true);
+        }
+      },
+      limits: { fileSize: 10 * 1024 * 1024 },
+    }),
+  )
+  async uploadCover(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('Nenhum arquivo enviado.');
+    const coverUrl = `/uploads/covers/${file.filename}`;
+    const useCaseInput = new UpdateOrganizerUseCaseInput(id, { coverUrl } as any);
+    const updated = await this.updateOrganizer.run(useCaseInput);
+    return { coverUrl: (updated as any).coverUrl };
   }
 
   @Patch(':id/approve')

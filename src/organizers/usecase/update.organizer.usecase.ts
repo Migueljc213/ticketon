@@ -39,6 +39,7 @@ export default class UpdateOrganizerUseCase implements IUsecase<
     if (input.description !== undefined)
       updateData.description = input.description;
     if (input.logoUrl !== undefined) updateData.logoUrl = input.logoUrl;
+    if (input.coverUrl !== undefined) updateData.coverUrl = input.coverUrl;
     if (input.website !== undefined) updateData.website = input.website;
     if (input.isVerified !== undefined)
       updateData.isVerified = input.isVerified;
