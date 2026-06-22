@@ -16,12 +16,12 @@ import {
 } from './order.token';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
-// import PaymentModule from 'src/payments/payment.module'; // TODO: reativar com MP
+import PaymentModule from 'src/payments/payment.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, Ticket, PurchasedTicket]),
-    // PaymentModule, // TODO: reativar com MP
+    PaymentModule,
   ],
   controllers: [OrderController],
   providers: [

@@ -14,12 +14,7 @@ import OrderItem from '../domain/entity/OrderItem.entity';
 import { OrderStatus } from '../domain/order-status.enum';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
-// import MercadoPagoService from 'src/payments/external/mercadopago.service'; // TODO: reativar após configuração do MP
-
-// ─── FLAG: desativar Mercado Pago para testes ──────────────────────────────
-// Quando true, o pedido é confirmado automaticamente sem passar pelo MP.
-// Remover esta constante e restaurar a integração MP quando pronto.
-const BYPASS_PAYMENT = true;
+import MercadoPagoService from 'src/payments/external/mercadopago.service';
 
 @Injectable()
 export default class CreateOrderUseCase implements IUsecase<
@@ -30,7 +25,7 @@ export default class CreateOrderUseCase implements IUsecase<
 
   constructor(
     private readonly dataSource: DataSource,
-    // private readonly mercadoPagoService: MercadoPagoService, // TODO: reativar MP
+    private readonly mercadoPagoService: MercadoPagoService,
   ) {}
 
   async run(input: CreateOrderUseCaseInput): Promise<CreateOrderUseCaseOutput> {
@@ -133,12 +128,8 @@ export default class CreateOrderUseCase implements IUsecase<
         });
       }
 
-      if (BYPASS_PAYMENT) {
-        // ── Fluxo de teste: confirma o pedido sem passar pelo Mercado Pago ──────
-        this.logger.warn(
-          `[BYPASS_PAYMENT] Confirmando pedido ${order.id} automaticamente`,
-        );
-
+      // ── Ingressos gratuitos: confirma direto sem MP ──────────────────────────
+      if (totalAmount === 0) {
         await manager.update(Order, order.id, { status: OrderStatus.PAID });
 
         let ticketCount = 0;
@@ -159,10 +150,6 @@ export default class CreateOrderUseCase implements IUsecase<
           }
         }
 
-        this.logger.log(
-          `[BYPASS_PAYMENT] ${ticketCount} ingresso(s) emitidos para pedido ${order.id}`,
-        );
-
         return new CreateOrderUseCaseOutput({
           orderId: order.id,
           initPoint: '',
@@ -174,28 +161,32 @@ export default class CreateOrderUseCase implements IUsecase<
         });
       }
 
-      // ── Fluxo Mercado Pago (TODO: descomentar quando MP estiver configurado) ──
-      // const preferenceItems = input.items.map((item) => {
-      //   const ticket = tickets.find((t) => t.id === item.ticketId)!;
-      //   return {
-      //     id: String(ticket.id),
-      //     title: ticket.name,
-      //     quantity: item.quantity,
-      //     unit_price: Number(ticket.price),
-      //     currency_id: 'BRL',
-      //   };
-      // });
-      // const preference = await this.mercadoPagoService.createPreference({
-      //   items: preferenceItems,
-      //   externalReference: String(order.id),
-      //   backUrl: input.backUrl,
-      // });
-      // await manager.update(Order, order.id, { mpPreferenceId: preference.id });
+      // ── Fluxo Mercado Pago ────────────────────────────────────────────────────
+      const preferenceItems = input.items.map((item) => {
+        const ticket = tickets.find((t) => t.id === item.ticketId)!;
+        return {
+          id: String(ticket.id),
+          title: ticket.name,
+          quantity: item.quantity,
+          unit_price: Number(ticket.price),
+          currency_id: 'BRL',
+        };
+      });
+
+      const preference = await this.mercadoPagoService.createPreference({
+        items: preferenceItems,
+        externalReference: String(order.id),
+        backUrl: input.backUrl,
+      });
+
+      await manager.update(Order, order.id, { mpPreferenceId: preference.id });
+
+      this.logger.log(`Order ${order.id} → MP preference ${preference.id}`);
 
       return new CreateOrderUseCaseOutput({
         orderId: order.id,
-        initPoint: '',
-        sandboxInitPoint: '',
+        initPoint: preference.initPoint,
+        sandboxInitPoint: preference.sandboxInitPoint,
         totalAmount,
         expiresAt,
       });

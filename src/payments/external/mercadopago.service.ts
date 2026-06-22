@@ -61,7 +61,7 @@ export default class MercadoPagoService {
           pending: `${backUrl}/checkout/pending?order=${input.externalReference}`,
         },
         auto_return: 'approved',
-        notification_url: `${this.config.get<string>('BACKEND_URL') ?? 'http://localhost:3000'}/payments/webhook`,
+        notification_url: `${this.config.get<string>('BACKEND_URL') ?? 'http://localhost:3000'}/api/webhook`,
         expires: true,
         expiration_date_to: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
         payment_methods: {
