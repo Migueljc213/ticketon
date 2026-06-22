@@ -35,6 +35,6 @@ export default class BankAccount extends BaseEntity {
   @Column({ name: 'holder_cpf_cnpj', length: 20, nullable: false })
   holderCpfCnpj: string;
 
-  @Column({ name: 'pix_key', length: 255, nullable: true })
+  @Column({ name: 'pix_key', type: 'varchar', length: 255, nullable: true })
   pixKey: string | null;
 }
