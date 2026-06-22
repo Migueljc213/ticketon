@@ -28,7 +28,7 @@ export default class UpdateEventUseCase implements IUsecase<
     const FIELDS = [
       'organizerId', 'title', 'description', 'category',
       'eventDate', 'eventEndDate', 'locationType', 'venueName',
-      'address', 'city', 'state', 'zipcode', 'onlineUrl', 'bannerUrl',
+      'address', 'complement', 'city', 'state', 'zipcode', 'onlineUrl', 'bannerUrl',
       'maxAttendees', 'isPublic', 'isPublished', 'status',
     ] as const;
 

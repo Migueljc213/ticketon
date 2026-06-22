@@ -36,4 +36,8 @@ export default class UpdateUserUseCaseInputDto extends PartialClass<UpdateUserUs
   @IsString()
   @IsOptional()
   neighborhood?: string;
+
+  @IsString()
+  @IsOptional()
+  bankInfo?: string;
 }

@@ -31,4 +31,7 @@ export default class User extends BaseEntity {
 
   @Column({ name: 'neighborhood', type: 'varchar', length: 100, nullable: true })
   neighborhood: string | null;
+
+  @Column({ name: 'bank_info', type: 'text', nullable: true })
+  bankInfo: string | null;
 }
