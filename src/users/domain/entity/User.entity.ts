@@ -22,4 +22,13 @@ export default class User extends BaseEntity {
 
   @Column({ name: 'avatar_url', type: 'text', nullable: true })
   avatarUrl: string | null;
+
+  @Column({ name: 'gender', type: 'varchar', length: 30, nullable: true })
+  gender: string | null;
+
+  @Column({ name: 'age', type: 'int', nullable: true })
+  age: number | null;
+
+  @Column({ name: 'neighborhood', type: 'varchar', length: 100, nullable: true })
+  neighborhood: string | null;
 }
