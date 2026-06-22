@@ -14,8 +14,8 @@ export interface SocialProfile {
 export default class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(config: ConfigService) {
     super({
-      clientID: config.get<string>('GOOGLE_CLIENT_ID') ?? '',
-      clientSecret: config.get<string>('GOOGLE_CLIENT_SECRET') ?? '',
+      clientID: config.get<string>('GOOGLE_CLIENT_ID') || 'GOOGLE_NOT_CONFIGURED',
+      clientSecret: config.get<string>('GOOGLE_CLIENT_SECRET') || 'GOOGLE_NOT_CONFIGURED',
       callbackURL: `${config.get<string>('BACKEND_URL') ?? 'http://localhost:3000'}/auth/google/callback`,
       scope: ['email', 'profile'],
     });

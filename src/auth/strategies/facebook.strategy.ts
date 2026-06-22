@@ -8,8 +8,8 @@ import type { SocialProfile } from './google.strategy';
 export default class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   constructor(config: ConfigService) {
     super({
-      clientID: config.get<string>('FACEBOOK_APP_ID') ?? '',
-      clientSecret: config.get<string>('FACEBOOK_APP_SECRET') ?? '',
+      clientID: config.get<string>('FACEBOOK_APP_ID') || 'FACEBOOK_NOT_CONFIGURED',
+      clientSecret: config.get<string>('FACEBOOK_APP_SECRET') || 'FACEBOOK_NOT_CONFIGURED',
       callbackURL: `${config.get<string>('BACKEND_URL') ?? 'http://localhost:3000'}/auth/facebook/callback`,
       profileFields: ['id', 'emails', 'name', 'picture'],
       scope: ['email'],
