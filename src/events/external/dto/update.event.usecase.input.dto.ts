@@ -48,6 +48,10 @@ export default class UpdateEventUseCaseInputDto extends PartialClass<UpdateEvent
 
   @IsString()
   @IsOptional()
+  complement?: string | null;
+
+  @IsString()
+  @IsOptional()
   city?: string;
 
   @IsString()

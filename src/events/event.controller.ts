@@ -72,7 +72,14 @@ export default class EventController {
       this.logger.log(
         `POST /events/ body: ${JSON.stringify({ title: input.title })}`,
       );
-      const useCaseInput = new CreateEventUseCaseInput(input);
+      const { complement, ...rest } = input;
+      const mergedInput = {
+        ...rest,
+        address: complement
+          ? `${rest.address ?? ''}, ${complement}`.replace(/^, /, '')
+          : rest.address,
+      };
+      const useCaseInput = new CreateEventUseCaseInput(mergedInput as CreateEventUseCaseInputDto);
       return await this.createEvent.run(useCaseInput);
     } catch (e) {
       throw new BadRequestException(e.message);
