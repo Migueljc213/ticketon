@@ -15,7 +15,7 @@ import type {
 import type IUsecase from 'src/common/interfaces/IUseCase';
 
 @SkipThrottle() // o controller inteiro por padrão pula throttle
-@Controller('payments')
+@Controller('')
 export default class PaymentController {
   private readonly logger = new Logger(PaymentController.name);
 
@@ -32,7 +32,7 @@ export default class PaymentController {
   // O Mercado Pago pode reenviar webhooks com alta frequência — limite generoso
   @SkipThrottle({ default: false })
   @Throttle({ default: { ttl: 60_000, limit: 30 } }) // 30 webhooks/min por IP
-  @Post('webhook')
+  @Post('api/webhook')
   @HttpCode(200)
   async webhook(@Body() body: WebhookInput) {
     this.logger.log(`Webhook received: type=${body.type}`);
