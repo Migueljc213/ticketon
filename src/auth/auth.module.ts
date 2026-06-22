@@ -11,6 +11,8 @@ import AuthController from './auth.controller';
 import LoginUseCase from './usecase/login.usecase';
 import { LoginUseCaseToken } from './auth.token';
 import JwtStrategy from './strategies/jwt.strategy';
+import GoogleStrategy from './strategies/google.strategy';
+import FacebookStrategy from './strategies/facebook.strategy';
 
 @Module({
   imports: [
@@ -22,8 +24,7 @@ import JwtStrategy from './strategies/jwt.strategy';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET') || 'your-secret-key',
         signOptions: {
-          expiresIn: (configService.get<string>('JWT_EXPIRES_IN') ||
-            '1d') as StringValue,
+          expiresIn: (configService.get<string>('JWT_EXPIRES_IN') || '1d') as StringValue,
         },
       }),
     }),
@@ -39,6 +40,8 @@ import JwtStrategy from './strategies/jwt.strategy';
       useClass: LoginUseCase,
     },
     JwtStrategy,
+    GoogleStrategy,
+    FacebookStrategy,
   ],
   exports: [JwtModule],
 })

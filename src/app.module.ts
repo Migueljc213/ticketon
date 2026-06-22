@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import AppController from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SeedService } from './common/seed/seed.service';
@@ -32,6 +34,8 @@ import { MailerModule } from './mailer/mailer.module';
 import NotificationsModule from './notifications/notifications.module';
 import EventConsumptionRecordModule from './event-consumption-records/event-consumption-record.module';
 import EventConsumptionRecord from './event-consumption-records/domain/entity/EventConsumptionRecord.entity';
+import BankAccountModule from './bank-accounts/bank-account.module';
+import BankAccount from './bank-accounts/domain/entity/BankAccount.entity';
 
 @Module({
   controllers: [AppController],
@@ -39,6 +43,13 @@ import EventConsumptionRecord from './event-consumption-records/domain/entity/Ev
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60_000, // 1 minuto
+        limit: 60,   // 60 req/min por IP (rotas comuns)
+      },
+    ]),
     TypeOrmModule.forRoot({
       ...dataSourceOptions,
       retryAttempts: 30,
@@ -56,6 +67,7 @@ import EventConsumptionRecord from './event-consumption-records/domain/entity/Ev
       EventPost,
       EventFeedback,
       EventConsumptionRecord,
+      BankAccount,
     ]),
     UserModule,
     AuthModule,
@@ -74,7 +86,12 @@ import EventConsumptionRecord from './event-consumption-records/domain/entity/Ev
     MailerModule,
     NotificationsModule,
     EventConsumptionRecordModule,
+    BankAccountModule,
   ],
-  providers: [SeedService],
+  providers: [
+    SeedService,
+    // Ativa o ThrottlerGuard globalmente em todos os endpoints
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

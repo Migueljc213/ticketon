@@ -18,6 +18,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
@@ -42,6 +43,7 @@ import UpdateUserUseCaseOutput from './usecase/dto/output/update.user.usecase.ou
 import DeleteUserUseCaseInput from './usecase/dto/input/delete.user.usecase.input';
 import JwtAuthGuard from 'src/auth/guards/jwt-auth.guard';
 
+@SkipThrottle() // rotas de leitura autenticadas não precisam de throttle
 @Controller('/users')
 export default class UserController {
   constructor(
@@ -68,6 +70,8 @@ export default class UserController {
 
   private readonly logger = new Logger(UserController.name);
 
+  @SkipThrottle({ default: false }) // reativa throttle só para o cadastro
+  @Throttle({ default: { ttl: 60_000, limit: 10 } }) // 10 cadastros/min por IP
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async postUser(

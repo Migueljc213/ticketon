@@ -1,0 +1,36 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class CreateBankAccountsTable1760700000000 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      CREATE TABLE bank_accounts (
+        id          INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        user_id     INT NOT NULL,
+        bank_code   VARCHAR(10) NOT NULL,
+        bank_name   VARCHAR(100) NOT NULL,
+        agency      VARCHAR(20) NOT NULL,
+        account_number VARCHAR(30) NOT NULL,
+        account_type ENUM('corrente','poupanca') NOT NULL DEFAULT 'corrente',
+        holder_name VARCHAR(255) NOT NULL,
+        holder_cpf_cnpj VARCHAR(20) NOT NULL,
+        pix_key     VARCHAR(255) NULL,
+        created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_bank_accounts_user_id (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // Remove coluna legada bank_info da tabela users (dados movidos para bank_accounts)
+    await queryRunner.query(`
+      ALTER TABLE users DROP COLUMN IF EXISTS bank_info;
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS bank_accounts;`);
+
+    await queryRunner.query(`
+      ALTER TABLE users ADD COLUMN bank_info TEXT NULL;
+    `);
+  }
+}

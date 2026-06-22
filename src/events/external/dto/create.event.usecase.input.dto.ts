@@ -45,11 +45,11 @@ export default class CreateEventUseCaseInputDto extends PartialClass<CreateEvent
 
   @IsString()
   @IsOptional()
-  venueName?: string;
+  venueName?: string | null;
 
   @IsString()
   @IsOptional()
-  address?: string;
+  address?: string | null;
 
   @IsString()
   @IsOptional()

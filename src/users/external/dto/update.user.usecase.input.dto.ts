@@ -21,9 +21,5 @@ export default class UpdateUserUseCaseInputDto extends PartialClass<UpdateUserUs
 
   @IsString()
   @IsOptional()
-  bankInfo?: string;
-
-  @IsString()
-  @IsOptional()
   avatarUrl?: string;
 }

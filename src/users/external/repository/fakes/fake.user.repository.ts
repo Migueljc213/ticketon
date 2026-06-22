@@ -13,7 +13,6 @@ export default class FakeUserRepository implements IUserRepository {
     user.email = input.email!;
     user.cpfCnpj = input.cpfCnpj!;
     user.password = input.password!;
-    user.bankInfo = input.bankInfo || null;
     user.createdAt = new Date();
     user.updatedAt = new Date();
 

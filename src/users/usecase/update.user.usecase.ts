@@ -40,7 +40,6 @@ export default class UpdateUserUseCase implements IUsecase<
     if (input.name !== undefined) updateData.name = input.name;
     if (input.email !== undefined) updateData.email = input.email;
     if (input.cpfCnpj !== undefined) updateData.cpfCnpj = input.cpfCnpj;
-    if (input.bankInfo !== undefined) updateData.bankInfo = input.bankInfo;
     if (input.avatarUrl !== undefined) updateData.avatarUrl = input.avatarUrl;
 
     // Hash password if it's being updated

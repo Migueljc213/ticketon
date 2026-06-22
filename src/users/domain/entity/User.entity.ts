@@ -11,14 +11,11 @@ export default class User extends BaseEntity {
   @Column({ name: 'email', length: '255', nullable: false, unique: true })
   email: string;
 
-  @Column({ name: 'password', length: '255', nullable: false })
-  password: string;
+  @Column({ name: 'password', length: '255', nullable: true })
+  password: string | null;
 
-  @Column({ name: 'cpf_cnpj', length: '255', nullable: false })
-  cpfCnpj: string;
-
-  @Column({ name: 'bank_info', type: 'text', nullable: true })
-  bankInfo: string | null;
+  @Column({ name: 'cpf_cnpj', length: '255', nullable: true })
+  cpfCnpj: string | null;
 
   @Column({ name: 'role', length: 20, nullable: false, default: 'participant' })
   role: UserRole;

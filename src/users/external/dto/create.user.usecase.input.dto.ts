@@ -15,7 +15,4 @@ export default class CreateUserUseCaseInputDto extends PartialClass<CreateUserUs
   @IsOptional()
   @IsString()
   cpfCnpj?: string;
-  @IsOptional()
-  @IsString()
-  bankInfo?: string | null;
 }

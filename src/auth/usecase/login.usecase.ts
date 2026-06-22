@@ -29,6 +29,11 @@ export default class LoginUseCase implements IUsecase<
       throw new Error('Invalid credentials');
     }
 
+    // Social-login users have no password — block password login for them
+    if (!user.password) {
+      throw new Error('Invalid credentials');
+    }
+
     // Verify password
     const isPasswordValid = await bcrypt.compare(input.password, user.password);
     if (!isPasswordValid) {

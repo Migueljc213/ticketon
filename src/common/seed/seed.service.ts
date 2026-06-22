@@ -82,7 +82,6 @@ export class SeedService implements OnModuleInit {
       const user = this.userRepo.create({
         ...u,
         password: hash,
-        bankInfo: null,
       });
       saved.push(await this.userRepo.save(user));
       this.logger.log(`👤 Usuário criado: ${u.email}`);
