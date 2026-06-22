@@ -42,7 +42,17 @@ export default class HandleWebhookUseCase implements IUsecase<
 
     this.logger.log(`Processing webhook for MP payment ID: ${input.data.id}`);
 
-    const mpPayment = await this.mpPaymentClient.get({ id: input.data.id });
+    let mpPayment: Awaited<ReturnType<typeof this.mpPaymentClient.get>>;
+    try {
+      mpPayment = await this.mpPaymentClient.get({ id: input.data.id });
+    } catch (err: unknown) {
+      const status = (err as { status?: number })?.status;
+      if (status === 404) {
+        this.logger.warn(`MP payment ${input.data.id} not found — ignoring webhook`);
+        return { processed: false };
+      }
+      throw err;
+    }
 
     const orderId = Number(mpPayment.external_reference);
     const mpStatus = mpPayment.status;
