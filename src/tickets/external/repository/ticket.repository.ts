@@ -28,6 +28,7 @@ export default class TicketRepository implements ITicketRepository {
   }
 
   async update(id: number, input: Partial<Ticket>): Promise<Ticket> {
+    if (Object.keys(input).length === 0) throw new Error('No fields to update');
     await this.repository.update(id, input);
     const updatedTicket = await this.findById(id);
     if (!updatedTicket) {

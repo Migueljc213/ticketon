@@ -27,6 +27,7 @@ export default class UserRepository implements IUserRepository {
   }
 
   async update(id: number, input: Partial<User>): Promise<User> {
+    if (Object.keys(input).length === 0) throw new Error('No fields to update');
     await this.repository.update(id, input);
     const updatedUser = await this.findById(id);
     if (!updatedUser) {
