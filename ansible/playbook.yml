@@ -41,6 +41,13 @@
         version: main
         force: yes # Garante que ele vai puxar a versão mais recente e sobrescrever tudo
 
+    - name: 3.5 Limpar imagens e cache Docker antigos para liberar espaço em disco
+      shell: |
+        docker container prune -f
+        docker image prune -a -f
+        docker builder prune -f
+      ignore_errors: yes
+
     - name: 4. Fazer o Build da Imagem Docker (Usando seu Dockerfile Multi-stage)
       shell: |
         cd /app/ticketon
