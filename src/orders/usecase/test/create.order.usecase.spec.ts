@@ -61,7 +61,7 @@ describe('CreateOrderUseCase', () => {
 
     createOrderUseCase = new CreateOrderUseCase(
       mockDataSource,
-      // mockMercadoPagoService, // TODO: reativar com MP
+      mockMercadoPagoService,
     );
   });
 
@@ -89,7 +89,7 @@ describe('CreateOrderUseCase', () => {
       const result = await createOrderUseCase.run(input);
 
       expect(result.orderId).toBeDefined();
-      expect(result.initPoint).toBe('');
+      expect(result.initPoint).toBe('https://www.mercadopago.com/init');
       expect(result.totalAmount).toBe(
         TEST_CONSTANTS.PRICES.DEFAULT_TICKET_PRICE * 2,
       );
