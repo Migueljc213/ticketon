@@ -1,0 +1,77 @@
+---
+- name: Configurar Servidor de Produção Ticketon
+  hosts: all
+  become: yes # Roda tudo como root
+
+  tasks:
+    - name: 1. Instalar pacotes essenciais (Git, Curl, etc)
+      apt:
+        name:
+          - git
+          - curl
+          - apt-transport-https
+          - python3-pip
+          - python3-docker
+        state: present
+        update_cache: yes
+
+    - name: 2. Instalar o Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: 2.1 Iniciar e habilitar o serviço Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: 2.2 Aguardar o daemon do Docker ficar disponível
+      shell: docker info
+      register: docker_info
+      retries: 10
+      delay: 5
+      until: docker_info.rc == 0
+
+    - name: 3. Clonar o repositório do Ticketon do GitHub
+      git:
+        # Se o repo for privado, injetamos o token na URL:
+        repo: "https://{{ github_token }}@github.com/Migueljc213/ticketon.git"
+        dest: /app/ticketon # Pasta onde o código vai ficar no servidor
+        version: main
+        force: yes # Garante que ele vai puxar a versão mais recente e sobrescrever tudo
+
+    - name: 4. Fazer o Build da Imagem Docker (Usando seu Dockerfile Multi-stage)
+      shell: |
+        cd /app/ticketon
+        docker build --no-cache --target runner -t ticketon-backend:prod .
+      # Nota: Usamos o módulo shell aqui porque é a forma mais direta de compilar o código que acabou de chegar.
+
+    - name: 5. Parar container antigo (se existir)
+      shell: |
+        docker rm -f ticketon-backend-prod || true
+
+    - name: 5.5 Rodar Migrations do Banco de Dados
+      shell: |
+        docker run --rm \
+          --name ticketon-migrations \
+          -e NODE_ENV='{{ ambiente }}' \
+          -e DATABASE_HOST='{{ db_host }}' \
+          -e DATABASE_USERNAME='{{ db_user }}' \
+          -e DATABASE_PASSWORD='{{ db_password }}' \
+          -e DATABASE_NAME='{{ db_name }}' \
+          ticketon-backend:prod \
+          sh -c "npx typeorm migration:run -d dist/src/data-source.js"
+
+    - name: 6. Subir o novo container do NestJS
+      shell: |
+        docker run -d \
+          --name ticketon-backend-prod \
+          --restart always \
+          -p {{ porta_app }} \
+          -e NODE_ENV='{{ ambiente }}' \
+          -e DATABASE_HOST='{{ db_host }}' \
+          -e DATABASE_USERNAME='{{ db_user }}' \
+          -e DATABASE_PASSWORD='{{ db_password }}' \
+          -e DATABASE_NAME='{{ db_name }}' \
+          ticketon-backend:prod
