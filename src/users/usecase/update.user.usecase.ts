@@ -20,13 +20,11 @@ export default class UpdateUserUseCase implements IUsecase<
   async run(input: UpdateUserUseCaseInput): Promise<UpdateUserUseCaseOutput> {
     this.logger.log('Updating user', input.id);
 
-    // Check if user exists
     const existingUser = await this.repository.findById(input.id);
     if (!existingUser) {
       throw new Error('User not found');
     }
 
-    // If email is being updated, check if it's already in use
     if (input.email && input.email !== existingUser.email) {
       const userWithEmail = await this.repository.findByEmail(input.email);
       if (userWithEmail) {
@@ -34,7 +32,6 @@ export default class UpdateUserUseCase implements IUsecase<
       }
     }
 
-    // Build update data with only defined fields
     const updateData: Partial<UpdateUserUseCaseInput> = {};
 
     if (input.name !== undefined) updateData.name = input.name;
@@ -46,7 +43,6 @@ export default class UpdateUserUseCase implements IUsecase<
     if (input.neighborhood !== undefined) updateData.neighborhood = input.neighborhood;
     if (input.bankInfo !== undefined) updateData.bankInfo = input.bankInfo;
 
-    // Hash password if it's being updated
     if (input.password !== undefined) {
       const saltRounds = 10;
       updateData.password = await bcrypt.hash(input.password, saltRounds);

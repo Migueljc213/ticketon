@@ -112,7 +112,6 @@ export default class HandleWebhookUseCase implements IUsecase<
           `Order ${orderId} confirmed — ${createdTickets.length} tickets issued`,
         );
 
-        // Dispara notificação + email em background (não bloqueia o webhook)
         void this.postConfirmationActions(order, createdTickets);
       } else if (mpStatus === 'rejected' || mpStatus === 'cancelled') {
         await manager.update(Order, orderId, { status: OrderStatus.CANCELLED });
@@ -131,13 +130,11 @@ export default class HandleWebhookUseCase implements IUsecase<
     });
   }
 
-  // ── Ações pós-confirmação (notificação + email) ───────────────────────────────
   private async postConfirmationActions(
     order: Order,
     tickets: PurchasedTicket[],
   ): Promise<void> {
     try {
-      // Busca dados do usuário, evento e lotes
       const [userRow] = await this.dataSource.query(
         `SELECT name, email FROM users WHERE id = ?`,
         [order.userId],
@@ -149,7 +146,6 @@ export default class HandleWebhookUseCase implements IUsecase<
 
       if (!userRow || !eventRow) return;
 
-      // Cria notificação no banco
       await this.dataSource.query(
         `INSERT INTO user_notifications (user_id, type, title, body, event_id)
          VALUES (?, 'purchase', ?, ?, ?)`,
@@ -161,7 +157,6 @@ export default class HandleWebhookUseCase implements IUsecase<
         ],
       );
 
-      // Monta dados dos ingressos para o email
       const ticketDetails = await Promise.all(
         tickets.map(async (pt) => {
           const [row] = await this.dataSource.query(

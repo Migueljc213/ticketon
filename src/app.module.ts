@@ -46,8 +46,8 @@ import BankAccount from './bank-accounts/domain/entity/BankAccount.entity';
     ThrottlerModule.forRoot([
       {
         name: 'default',
-        ttl: 60_000, // 1 minuto
-        limit: 60,   // 60 req/min por IP (rotas comuns)
+        ttl: 60_000,
+        limit: 60,
       },
     ]),
     TypeOrmModule.forRoot({
@@ -90,7 +90,6 @@ import BankAccount from './bank-accounts/domain/entity/BankAccount.entity';
   ],
   providers: [
     SeedService,
-    // Ativa o ThrottlerGuard globalmente em todos os endpoints
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })

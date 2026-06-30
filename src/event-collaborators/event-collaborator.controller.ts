@@ -40,7 +40,6 @@ class AddCollaboratorDto {
 export default class EventCollaboratorController {
   constructor(@InjectDataSource() private readonly ds: DataSource) {}
 
-  // ── Verifica se o usuário logado é o organizador do evento ───────────────────
   private async assertIsOrganizer(
     eventId: number,
     userId: number,
@@ -57,8 +56,6 @@ export default class EventCollaboratorController {
       );
   }
 
-  // ── Lista eventos onde o usuário logado é colaborador ────────────────────────
-  // IMPORTANT: must be declared BEFORE ':eventId' to avoid route collision
   @Get('my/assignments')
   @HttpCode(HttpStatus.OK)
   async myAssignments(@Req() req: AuthRequest) {
@@ -75,7 +72,6 @@ export default class EventCollaboratorController {
     );
   }
 
-  // ── Lista colaboradores do evento ────────────────────────────────────────────
   @Get(':eventId')
   @HttpCode(HttpStatus.OK)
   async list(
@@ -95,7 +91,6 @@ export default class EventCollaboratorController {
     );
   }
 
-  // ── Adiciona colaborador pelo e-mail ─────────────────────────────────────────
   @Post(':eventId')
   @HttpCode(HttpStatus.CREATED)
   async add(
@@ -105,7 +100,6 @@ export default class EventCollaboratorController {
   ) {
     await this.assertIsOrganizer(eventId, req.user.id);
 
-    // Busca o usuário pelo e-mail
     const [user] = await this.ds.query(
       `SELECT id, name, email FROM users WHERE email = ?`,
       [dto.email],
@@ -115,7 +109,6 @@ export default class EventCollaboratorController {
         `Nenhum usuário encontrado com o e-mail "${dto.email}".`,
       );
 
-    // Verifica se já é colaborador
     const [existing] = await this.ds.query(
       `SELECT id FROM event_collaborators WHERE event_id = ? AND user_id = ?`,
       [eventId, user.id],
@@ -141,7 +134,6 @@ export default class EventCollaboratorController {
     };
   }
 
-  // ── Remove colaborador ───────────────────────────────────────────────────────
   @Delete(':eventId/:collaboratorId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(

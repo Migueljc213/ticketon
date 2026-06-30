@@ -24,13 +24,11 @@ interface AuthRequest extends Request {
 export default class NotificationsController {
   constructor(@InjectDataSource() private readonly ds: DataSource) {}
 
-  // ── Notificações do usuário + upcoming events dinâmicos ──────────────────────
   @Get('my')
   @HttpCode(HttpStatus.OK)
   async myNotifications(@Req() req: AuthRequest) {
     const userId = req.user.id;
 
-    // Notificações persistidas
     const stored: Array<{
       id: number;
       type: string;
@@ -48,7 +46,6 @@ export default class NotificationsController {
       [userId],
     );
 
-    // Eventos nas próximas 24h que o usuário tem ingressos válidos
     const upcoming: Array<{
       eventId: number;
       title: string;
@@ -63,7 +60,6 @@ export default class NotificationsController {
       [userId],
     );
 
-    // Cria notificações de "evento amanhã" se ainda não existirem
     for (const ev of upcoming) {
       const [exists] = await this.ds.query(
         `SELECT id FROM user_notifications
@@ -91,7 +87,6 @@ export default class NotificationsController {
       }
     }
 
-    // Re-busca para incluir as novas
     const all = await this.ds.query(
       `SELECT id, type, title, body, \`read\`, created_at AS createdAt, event_id AS eventId
        FROM user_notifications
@@ -107,7 +102,6 @@ export default class NotificationsController {
     }));
   }
 
-  // ── Marcar todas como lidas (deve vir ANTES de :id/read para evitar colisão) ──
   @Patch('read-all')
   @HttpCode(HttpStatus.OK)
   async markAllRead(@Req() req: AuthRequest) {
@@ -118,7 +112,6 @@ export default class NotificationsController {
     return { ok: true };
   }
 
-  // ── Marcar uma como lida ─────────────────────────────────────────────────────
   @Patch(':id/read')
   @HttpCode(HttpStatus.OK)
   async markRead(

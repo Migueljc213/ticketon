@@ -41,7 +41,6 @@ export default class FakeUserRepository implements IUserRepository {
       throw new Error('User not found');
     }
 
-    // Only update fields that are explicitly provided
     Object.keys(input).forEach((key) => {
       if (input[key] !== undefined) {
         this.users[userIndex][key] = input[key];

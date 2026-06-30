@@ -32,8 +32,6 @@ export default class CreateOrderUseCase implements IUsecase<
     this.logger.log(`Creating order for user ${input.userId}`);
 
     return this.dataSource.transaction(async (manager) => {
-      // Pessimistic write lock: garante que nenhuma outra transação
-      // leia/atualize os mesmos ingressos ao mesmo tempo
       const ticketIds = input.items.map((i) => i.ticketId);
       const tickets = await manager
         .createQueryBuilder(Ticket, 't')
@@ -50,7 +48,6 @@ export default class CreateOrderUseCase implements IUsecase<
         );
       }
 
-      // Valida disponibilidade de estoque
       for (const item of input.items) {
         const ticket = tickets.find((t) => t.id === item.ticketId)!;
         const available = ticket.quantityAvailable - ticket.quantitySold;
@@ -82,18 +79,15 @@ export default class CreateOrderUseCase implements IUsecase<
         }
       }
 
-      // Calcula total
       const totalAmount = input.items.reduce((sum, item) => {
         const ticket = tickets.find((t) => t.id === item.ticketId)!;
         return sum + Number(ticket.price) * item.quantity;
       }, 0);
 
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-      // Deriva eventId a partir dos ingressos (todos os itens devem ser do mesmo evento)
       const eventId = tickets[0].eventId;
 
-      // Cria o pedido
       const order = manager.create(Order, {
         userId: input.userId,
         eventId,
@@ -108,7 +102,6 @@ export default class CreateOrderUseCase implements IUsecase<
       });
       await manager.save(order);
 
-      // Cria os itens e reserva os ingressos atomicamente
       for (const item of input.items) {
         const ticket = tickets.find((t) => t.id === item.ticketId)!;
 
@@ -122,13 +115,11 @@ export default class CreateOrderUseCase implements IUsecase<
           }),
         );
 
-        // Incrementa quantitySold para reservar o estoque
         await manager.update(Ticket, ticket.id, {
           quantitySold: ticket.quantitySold + item.quantity,
         });
       }
 
-      // ── Ingressos gratuitos: confirma direto sem MP ──────────────────────────
       if (totalAmount === 0) {
         await manager.update(Order, order.id, { status: OrderStatus.PAID });
 
@@ -161,7 +152,6 @@ export default class CreateOrderUseCase implements IUsecase<
         });
       }
 
-      // ── Fluxo Mercado Pago ────────────────────────────────────────────────────
       const preferenceItems = input.items.map((item) => {
         const ticket = tickets.find((t) => t.id === item.ticketId)!;
         return {

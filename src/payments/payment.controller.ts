@@ -56,7 +56,6 @@ export default class PaymentController {
   ): void {
     if (!xSignature) throw new UnauthorizedException('Missing x-signature');
 
-    // x-signature = "ts=<timestamp>,v1=<hash>"
     const parts = Object.fromEntries(
       xSignature.split(',').map((p) => p.split('=')),
     );

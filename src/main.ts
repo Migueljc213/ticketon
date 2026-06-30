@@ -13,7 +13,6 @@ async function bootstrap() {
 
   app.use(helmet());
 
-  // Enable CORS
   app.enableCors({
     origin: (origin, callback) => {
       const allowed = [
@@ -31,10 +30,8 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global exception filter — returns structured Portuguese error messages
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // Enable global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

@@ -23,24 +23,20 @@ export default class LoginUseCase implements IUsecase<
   async run(input: LoginUseCaseInput): Promise<LoginUseCaseOutput> {
     this.logger.log('Attempting login for user', input.email);
 
-    // Find user by email
     const user = await this.userRepository.findByEmail(input.email);
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
-    // Social-login users have no password — block password login for them
     if (!user.password) {
       throw new Error('Invalid credentials');
     }
 
-    // Verify password
     const isPasswordValid = await bcrypt.compare(input.password, user.password);
     if (!isPasswordValid) {
       throw new Error('Invalid credentials');
     }
 
-    // Generate JWT token — participants get 30 days; organizers/admins get 1 day
     const payload = { sub: user.id, email: user.email, role: user.role };
     const expiresIn = user.role === 'participant' ? '30d' : '1d';
     const accessToken = await this.jwtService.signAsync(payload, { expiresIn });

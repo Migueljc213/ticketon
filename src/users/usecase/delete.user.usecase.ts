@@ -18,7 +18,6 @@ export default class DeleteUserUseCase implements IUsecase<
   async run(input: DeleteUserUseCaseInput): Promise<void> {
     this.logger.log('Deleting user', input.id);
 
-    // Check if user exists
     const existingUser = await this.repository.findById(input.id);
     if (!existingUser) {
       throw new Error('User not found');

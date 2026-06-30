@@ -67,7 +67,6 @@ class CreatePollDto {
 export default class OrganizerContentController {
   constructor(@InjectDataSource() private readonly ds: DataSource) {}
 
-  // ── GET posts ─────────────────────────────────────────────────────────────────
   @Get(':organizerId/posts')
   @HttpCode(HttpStatus.OK)
   async getPosts(@Param('organizerId', ParseIntPipe) organizerId: number) {
@@ -83,7 +82,6 @@ export default class OrganizerContentController {
     );
   }
 
-  // ── POST post ─────────────────────────────────────────────────────────────────
   @Post(':organizerId/post')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
@@ -108,7 +106,6 @@ export default class OrganizerContentController {
     };
   }
 
-  // ── GET polls ─────────────────────────────────────────────────────────────────
   @Get(':organizerId/polls')
   @HttpCode(HttpStatus.OK)
   async getPolls(@Param('organizerId', ParseIntPipe) organizerId: number) {
@@ -131,7 +128,6 @@ export default class OrganizerContentController {
     });
   }
 
-  // ── GET poll vote counts ──────────────────────────────────────────────────────
   @Get('polls/:pollId/results')
   @HttpCode(HttpStatus.OK)
   async getPollResults(@Param('pollId', ParseIntPipe) pollId: number) {
@@ -150,7 +146,6 @@ export default class OrganizerContentController {
     return { pollId, votes };
   }
 
-  // ── POST poll ─────────────────────────────────────────────────────────────────
   @Post(':organizerId/poll')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
@@ -177,7 +172,6 @@ export default class OrganizerContentController {
     };
   }
 
-  // ── POST vote ─────────────────────────────────────────────────────────────────
   @Post('polls/:pollId/vote')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -191,7 +185,6 @@ export default class OrganizerContentController {
       [pollId, req.user.id],
     );
     if (existing.length > 0) {
-      // Atualiza o voto anterior
       await this.ds.query(
         `UPDATE poll_votes SET option_index = ? WHERE poll_id = ? AND user_id = ?`,
         [optionIndex, pollId, req.user.id],
@@ -205,7 +198,6 @@ export default class OrganizerContentController {
     return this.getPollResults(pollId);
   }
 
-  // ── Verifica se o usuário é dono do organizer ─────────────────────────────────
   private async assertIsOrganizer(userId: number, organizerId: number) {
     const [org] = await this.ds.query(
       `SELECT id FROM organizers WHERE id = ? AND user_id = ?`,

@@ -28,7 +28,6 @@ export default class EventFeedbackController {
     private readonly repo: IEventFeedbackRepository,
   ) {}
 
-  /** Envia feedback — público (link compartilhável após o evento) */
   @Post('event/:eventId')
   @HttpCode(HttpStatus.CREATED)
   async create(
@@ -63,7 +62,6 @@ export default class EventFeedbackController {
     return { message: 'Obrigado pelo seu feedback!', id: feedback.id };
   }
 
-  /** Resumo de feedback para o organizador — protegido por JWT */
   @Get('event/:eventId/summary')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -71,7 +69,6 @@ export default class EventFeedbackController {
     return this.repo.getSummary(eventId);
   }
 
-  /** Lista todos os feedbacks — protegido por JWT */
   @Get('event/:eventId')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)

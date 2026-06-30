@@ -38,10 +38,6 @@ export default class AuthController {
     private readonly config: ConfigService,
   ) {}
 
-  // ─────────────────────────────────────────────
-  // E-mail + senha
-  // ─────────────────────────────────────────────
-
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('/login')
   @HttpCode(HttpStatus.OK)
@@ -54,15 +50,9 @@ export default class AuthController {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // Google OAuth
-  // ─────────────────────────────────────────────
-
   @Get('/google')
   @UseGuards(AuthGuard('google'))
-  googleLogin() {
-    // Passport redireciona para o Google — nada a fazer aqui
-  }
+  googleLogin() {}
 
   @Get('/google/callback')
   @UseGuards(AuthGuard('google'))
@@ -72,15 +62,9 @@ export default class AuthController {
     res.redirect(redirectUrl);
   }
 
-  // ─────────────────────────────────────────────
-  // Facebook OAuth
-  // ─────────────────────────────────────────────
-
   @Get('/facebook')
   @UseGuards(AuthGuard('facebook'))
-  facebookLogin() {
-    // Passport redireciona para o Facebook — nada a fazer aqui
-  }
+  facebookLogin() {}
 
   @Get('/facebook/callback')
   @UseGuards(AuthGuard('facebook'))
@@ -89,10 +73,6 @@ export default class AuthController {
     const redirectUrl = await this.handleSocialLogin(req.user);
     res.redirect(redirectUrl);
   }
-
-  // ─────────────────────────────────────────────
-  // Helper compartilhado entre providers sociais
-  // ─────────────────────────────────────────────
 
   private async handleSocialLogin(profile: SocialProfile): Promise<string> {
     const frontendUrl = this.config.get<string>('FRONTEND_URL') ?? 'http://localhost:3002';
@@ -116,7 +96,6 @@ export default class AuthController {
         });
         this.logger.log(`Social user created: ${profile.email} (${profile.provider})`);
       } else {
-        // Atualiza avatar se ainda não tem
         if (!user.avatarUrl && profile.avatarUrl) {
           await this.userRepository.update(user.id, { avatarUrl: profile.avatarUrl });
         }

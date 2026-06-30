@@ -10,12 +10,6 @@ import Order from '../domain/entity/Order.entity';
 import { OrderStatus } from '../domain/order-status.enum';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 
-/**
- * Roda a cada 60 segundos e libera o estoque (quantitySold) de pedidos
- * que expiraram sem pagamento, evitando que ingressos fiquem "presos".
- *
- * Usa pessimistic_write por pedido para ser seguro em múltiplas instâncias.
- */
 @Injectable()
 export default class ReleaseExpiredOrdersService
   implements OnModuleInit, OnModuleDestroy
@@ -73,7 +67,6 @@ export default class ReleaseExpiredOrdersService
   private async processExpiredOrder(order: Order): Promise<void> {
     try {
       await this.dataSource.transaction(async (manager) => {
-        // Re-lock: garante que outra instância não processe o mesmo pedido
         const locked = await manager
           .createQueryBuilder(Order, 'o')
           .setLock('pessimistic_write')
@@ -85,7 +78,6 @@ export default class ReleaseExpiredOrdersService
 
         if (!locked) return; // Já processado por outra instância
 
-        // GREATEST evita quantitySold negativo em caso de inconsistência
         for (const item of order.items) {
           await manager
             .createQueryBuilder()

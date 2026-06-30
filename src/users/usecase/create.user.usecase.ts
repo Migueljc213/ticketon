@@ -21,17 +21,14 @@ export default class CreateUserUseCase implements IUsecase<
   ): Promise<CreateUserUseCaseOutput> {
     this.logger.log('Starting CreateUseCase', input.email);
 
-    // Check if user already exists
     const existingUser = await this.repository.findByEmail(input.email);
     if (existingUser) {
       throw new Error('User with this email already exists');
     }
 
-    // Hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(input.password, saltRounds);
 
-    // Create user with hashed password
     return this.repository.create({
       ...input,
       password: hashedPassword,

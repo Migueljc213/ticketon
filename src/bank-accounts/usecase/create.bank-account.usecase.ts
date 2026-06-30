@@ -17,7 +17,6 @@ export default class CreateBankAccountUseCase
   async run(input: CreateBankAccountUseCaseInput): Promise<BankAccountUseCaseOutput> {
     const existing = await this.repository.findByUserId(input.userId);
     if (existing) {
-      // Upsert: atualiza ao invés de duplicar
       return this.repository.update(input.userId, input);
     }
     return this.repository.create(input);

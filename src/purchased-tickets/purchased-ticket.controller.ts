@@ -63,7 +63,6 @@ export default class PurchasedTicketController {
     private readonly dataSource: DataSource,
   ) {}
 
-  /** Lista todos os ingressos comprados pelo usuário autenticado, com dados do evento e lote */
   @Get('my')
   async myTickets(@Req() req: AuthRequest) {
     const purchased = await this.repository.findByUserId(req.user.id);
@@ -73,19 +72,11 @@ export default class PurchasedTicketController {
     return infos.filter(Boolean);
   }
 
-  /**
-   * Retorna os dados completos de um ingresso pelo QR code
-   * sem marcá-lo como usado. Útil para pré-visualização na portaria.
-   */
   @Get('info/:qrCode')
   async info(@Param('qrCode') qrCode: string) {
     return this.buildTicketInfo(qrCode);
   }
 
-  /**
-   * Valida e registra o uso de um ingresso pelo QR code.
-   * Retorna dados enriquecidos (comprador, evento, lote) para exibição na portaria.
-   */
   @Patch('validate/:qrCode')
   async validate(@Param('qrCode') qrCode: string, @Req() req: AuthRequest) {
     const ticket = await this.repository.findByQrCode(qrCode);
@@ -107,7 +98,6 @@ export default class PurchasedTicketController {
       throw new BadRequestException('Ingresso cancelado.');
     }
 
-    // Resolve o evento a partir do ticket para checar autorização
     const ticketEntity = await this.dataSource
       .getRepository(Ticket)
       .findOne({ where: { id: ticket.ticketId } });
@@ -118,7 +108,6 @@ export default class PurchasedTicketController {
 
     await this.repository.markAsUsed(qrCode);
 
-    // Registra quem realizou o check-in
     await this.dataSource.query(
       `UPDATE purchased_tickets SET scanned_by = ? WHERE qr_code = ?`,
       [req.user.id, qrCode],
@@ -128,7 +117,6 @@ export default class PurchasedTicketController {
     return this.buildTicketInfo(qrCode);
   }
 
-  /** Verifica se o usuário é o organizador ou colaborador autorizado do evento */
   private async assertCanScan(eventId: number, userId: number): Promise<void> {
     const [isOrganizer] = await this.dataSource.query(
       `SELECT e.id FROM events e
@@ -149,7 +137,6 @@ export default class PurchasedTicketController {
     );
   }
 
-  /** Monta resposta enriquecida com dados do comprador, lote e evento */
   private async buildTicketInfo(qrCode: string): Promise<TicketInfo> {
     const pt = await this.dataSource
       .getRepository(PurchasedTicket)

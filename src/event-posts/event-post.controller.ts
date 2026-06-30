@@ -32,7 +32,6 @@ export default class EventPostController {
     private readonly repo: IEventPostRepository,
   ) {}
 
-  /** Lista todos os posts do evento — público */
   @Get('event/:eventId')
   @HttpCode(HttpStatus.OK)
   listPosts(@Param('eventId', ParseIntPipe) eventId: number) {
@@ -40,11 +39,6 @@ export default class EventPostController {
     return this.repo.findByEventId(eventId);
   }
 
-  /**
-   * Cria um post no mural.
-   * JwtAuthGuard → valida token
-   * HasPaidTicketGuard → verifica PurchasedTicket (pagamento confirmado)
-   */
   @Post('event/:eventId')
   @UseGuards(JwtAuthGuard, HasPaidTicketGuard)
   @HttpCode(HttpStatus.CREATED)

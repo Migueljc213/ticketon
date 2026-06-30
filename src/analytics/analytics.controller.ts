@@ -182,7 +182,6 @@ export default class AnalyticsController {
   async getEventAnalytics(
     @Param('eventId', ParseIntPipe) eventId: number,
   ): Promise<AnalyticsResponse> {
-    // ── Receita e pedidos pagos ────────────────────────────────────────────────
     const [revenueRow] = await this.ds.query<
       Array<{ revenue: string; totalOrders: string }>
     >(
@@ -194,7 +193,6 @@ export default class AnalyticsController {
       [eventId],
     );
 
-    // ── Ingressos emitidos (purchased_tickets) ─────────────────────────────────
     const [ticketsRow] = await this.ds.query<
       Array<{ sold: string; checkedIn: string }>
     >(
@@ -211,7 +209,6 @@ export default class AnalyticsController {
     const checkedIn = Number(ticketsRow.checkedIn ?? 0);
     const noShow = sold - checkedIn;
 
-    // ── Vendas diárias ─────────────────────────────────────────────────────────
     const dailySales = await this.ds.query<
       Array<{ date: string; count: string; revenue: string }>
     >(
@@ -226,7 +223,6 @@ export default class AnalyticsController {
       [eventId],
     );
 
-    // ── Curva horária de check-in ──────────────────────────────────────────────
     const hourlyRaw = await this.ds.query<
       Array<{ hour: string; count: string }>
     >(
@@ -241,7 +237,6 @@ export default class AnalyticsController {
       [eventId],
     );
 
-    // Preenche todos os horários com 0 mesmo os sem check-in
     const hourlyMap = new Map<number, number>();
     hourlyRaw.forEach((r) => hourlyMap.set(Number(r.hour), Number(r.count)));
     const hourlyCheckin: HourlyBucket[] = Array.from(
@@ -251,7 +246,6 @@ export default class AnalyticsController {
         count: hourlyMap.get(h) ?? 0,
       }),
     ).filter((_, h) => {
-      // Retorna apenas horas com atividade + 1h antes e depois
       const active = hourlyRaw.map((r) => Number(r.hour));
       if (active.length === 0) return false;
       const min = Math.max(0, Math.min(...active) - 1);
@@ -259,7 +253,6 @@ export default class AnalyticsController {
       return h >= min && h <= max;
     });
 
-    // ── Breakdown por lote ─────────────────────────────────────────────────────
     const ticketBreakdown = await this.ds.query<
       Array<{
         ticketId: string;
@@ -286,7 +279,6 @@ export default class AnalyticsController {
       [eventId],
     );
 
-    // ── Dados Demográficos ─────────────────────────────────────────────────────
     const genderRaw = await this.ds.query<Array<{ gender: string; count: string }>>(
       `SELECT
          COALESCE(o.customer_gender, 'nao_informado') AS gender,
@@ -324,7 +316,6 @@ export default class AnalyticsController {
       [eventId],
     );
 
-    // Agrupa idades em faixas
     const ageGroupMap = new Map<string, number>();
     for (const r of ageRaw) {
       const age = Number(r.age);
@@ -352,7 +343,6 @@ export default class AnalyticsController {
       totalWithData: Number(demographicsTotalRow?.total ?? 0),
     };
 
-    // ── Dados de Consumo ───────────────────────────────────────────────────────
     const consumptionRaw = await this.ds.query<
       Array<{ itemName: string; category: string; totalQuantity: string; totalRevenue: string }>
     >(

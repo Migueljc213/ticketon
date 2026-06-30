@@ -14,13 +14,6 @@ interface AuthUser {
   email: string;
 }
 
-/**
- * Garante que apenas usuários com um PurchasedTicket confirmado para o evento
- * possam acessar a rota. PurchasedTicket é criado somente após confirmação de
- * pagamento via webhook do Mercado Pago.
- *
- * Usa um JOIN direto para evitar N+1 e garantir atomicidade da verificação.
- */
 @Injectable()
 export default class HasPaidTicketGuard implements CanActivate {
   constructor(private readonly dataSource: DataSource) {}

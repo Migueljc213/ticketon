@@ -50,7 +50,6 @@ export class MailerService {
     const from = this.config.get<string>('MAIL_FROM') ?? 'noreply@ticketon.com';
     const appUrl = data.appUrl || 'http://localhost:3002';
 
-    // Gera QR codes como base64 PNG para cada ingresso
     const ticketBlocks = await Promise.all(
       data.tickets.map(async (t) => {
         const qrDataUrl = await QRCode.toDataURL(t.qrCode, {

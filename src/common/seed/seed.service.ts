@@ -33,7 +33,6 @@ export class SeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // Only seed when DB is empty (first run)
     const userCount = await this.userRepo.count();
     if (userCount > 0) return;
 
@@ -48,8 +47,6 @@ export class SeedService implements OnModuleInit {
 
     this.logger.log('✅ Seed concluído!');
   }
-
-  // ─── USERS ────────────────────────────────────────────────────────────────
 
   private async seedUsers() {
     const usersData = [
@@ -90,8 +87,6 @@ export class SeedService implements OnModuleInit {
     return { cliente: saved[0], admin: saved[1], organizer: saved[2] };
   }
 
-  // ─── ORGANIZER ────────────────────────────────────────────────────────────
-
   private async seedOrganizer(user: User) {
     const organizer = this.organizerRepo.create({
       userId: user.id,
@@ -112,8 +107,6 @@ export class SeedService implements OnModuleInit {
     this.logger.log('🏢 Organizador criado');
     return saved;
   }
-
-  // ─── EVENTS ───────────────────────────────────────────────────────────────
 
   private async seedEvents(organizerId: number) {
     const now = new Date();
@@ -273,17 +266,13 @@ export class SeedService implements OnModuleInit {
     return saved;
   }
 
-  // ─── TICKETS ──────────────────────────────────────────────────────────────
-
   private async seedTickets(events: Event[]) {
     const ticketDefs = [
-      // Festival de Música Eletrônica
       [
         { name: 'Pista', price: 120, qty: 3000, type: 'paid', sold: 450 },
         { name: 'VIP', price: 280, qty: 500, type: 'paid', sold: 80 },
         { name: 'Camarote', price: 580, qty: 100, type: 'paid', sold: 15 },
       ],
-      // Conferência de Tecnologia
       [
         {
           name: 'Ingresso Standard',
@@ -295,12 +284,10 @@ export class SeedService implements OnModuleInit {
         { name: 'Ingresso VIP', price: 650, qty: 150, type: 'paid', sold: 45 },
         { name: 'Early Bird', price: 199, qty: 50, type: 'paid', sold: 50 },
       ],
-      // Workshop Marketing Digital
       [
         { name: 'Acesso Básico', price: 0, qty: 100, type: 'free', sold: 75 },
         { name: 'Acesso Premium', price: 89, qty: 50, type: 'paid', sold: 22 },
       ],
-      // Festa Junina
       [
         { name: 'Adulto', price: 45, qty: 800, type: 'paid', sold: 320 },
         { name: 'Criança', price: 20, qty: 200, type: 'paid', sold: 95 },
@@ -312,7 +299,6 @@ export class SeedService implements OnModuleInit {
           sold: 40,
         },
       ],
-      // Corrida 10K
       [
         {
           name: 'Inscrição Standard',
@@ -329,7 +315,6 @@ export class SeedService implements OnModuleInit {
           sold: 180,
         },
       ],
-      // Show Stand-up (passado)
       [
         { name: 'Plateia', price: 80, qty: 400, type: 'paid', sold: 395 },
         { name: 'VIP', price: 150, qty: 100, type: 'paid', sold: 100 },
@@ -357,10 +342,7 @@ export class SeedService implements OnModuleInit {
     this.logger.log('🎫 Ingressos criados');
   }
 
-  // ─── ORDERS + ORDER ITEMS ─────────────────────────────────────────────────
-
   private async seedOrdersAndItems(cliente: User, events: Event[]) {
-    // Get tickets for the first two events
     const ticketsEvent0 = await this.ticketRepo.find({
       where: { eventId: events[0].id },
     });
@@ -371,14 +353,14 @@ export class SeedService implements OnModuleInit {
     const orderDefs = [
       {
         event: events[0],
-        ticket: ticketsEvent0[0], // Pista do festival
+        ticket: ticketsEvent0[0],
         quantity: 2,
         status: OrderStatus.PAID,
         paymentMethod: 'credit_card',
       },
       {
         event: events[5],
-        ticket: ticketsEvent1[0], // Plateia do stand-up (evento passado)
+        ticket: ticketsEvent1[0],
         quantity: 1,
         status: OrderStatus.PAID,
         paymentMethod: 'pix',
@@ -416,15 +398,13 @@ export class SeedService implements OnModuleInit {
           ticketId: def.ticket.id,
           qrCode,
         }),
-        isUsed: def.event.eventDate < new Date(), // usado se evento já passou
+        isUsed: def.event.eventDate < new Date(),
         usedAt: def.event.eventDate < new Date() ? def.event.eventDate : null,
       });
       await this.orderItemRepo.save(item);
     }
     this.logger.log('🛒 Pedidos e itens criados');
   }
-
-  // ─── EVENT POSTS ──────────────────────────────────────────────────────────
 
   private async seedEventPosts(organizer: User, events: Event[]) {
     const posts = [
