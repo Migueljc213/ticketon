@@ -44,6 +44,10 @@ RUN addgroup --system --gid 1001 nodejs \
  && adduser  --system --uid 1001 nestjs
 
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/src ./src
+COPY --from=builder --chown=nestjs:nodejs /app/tsconfig.json ./tsconfig.json
+COPY --from=builder --chown=nestjs:nodejs /app/tsconfig.build.json ./tsconfig.build.json
+COPY --from=builder --chown=nestjs:nodejs /app/nest-cli.json ./nest-cli.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 
