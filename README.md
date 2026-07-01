@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# ticketon
-=======
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
@@ -74,4 +71,6 @@ npm install --seve-dev jest
 npm install jest ts-jest @types/jest -D
 npx jest --init
 
->>>>>>> develop
+
+
+ansible-playbook -i inventories/prod/hosts.yml playbook.yml

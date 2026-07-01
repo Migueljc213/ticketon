@@ -1,41 +1,68 @@
-name: Deploy Backend NestJS to EC2
+# name: Pipeline de CI/CD - Ticketon
 
-# Define quando o robô deve trabalhar (Toda vez que tiver push na main)
+# on:
+#   push:
+#     branches:
+#       - main # Dispara sempre que houver merge ou push na main
+
+# jobs:
+#   build-and-push:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: 1. Checkout do Código
+#         uses: actions/checkout@v4
+
+#       - name: 2. Login no DockerHub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       - name: 3. Construir e Enviar Imagem Docker
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: .
+#           file: ./Dockerfile
+#           target: runner # Usa o seu estágio leve de produção
+#           push: true
+#           # Usamos o HASH do commit como TAG da imagem. Isso é uma boa prática sênior 
+#           # para rastrear exatamente qual código está rodando em produção.
+#           tags: |
+#             ${{ secrets.DOCKERHUB_USERNAME }}/ticketon-backend:${{ github.sha }}
+#             ${{ secrets.DOCKERHUB_USERNAME }}/ticketon-backend:latest
+
+
+name: Pipeline de CI/CD - Ticketon
+
 on:
   push:
     branches:
-      - main
+      - main # Dispara sempre que houver merge ou push na main
 
 jobs:
-  deploy:
-    name: Deploy to EC2
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Conectando via SSH e atualizando o servidor
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          # Estes são os comandos que o GitHub vai rodar dentro da sua AWS
-          script: |
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      - name: 1. Checkout do Código
+        uses: actions/checkout@v4
 
-            cd ~/ticketon
-            
-            # 1. Baixa o código novo
-            git pull origin main
-            
-            # 2. Instala novas dependências (se houver)
-            npm install
-            
-            # 3. Refaz a compilação de TypeScript para JavaScript
-            npm run build
-            
-            # 4. Roda as migrações no banco de dados Docker
-            npm run migration:run
-            
-            # 5. Reinicia a API no PM2 sem tempo de inatividade
-            pm2 restart api-ticketon
+      - name: 2. Login no DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 3. Construir e Enviar Imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: runner # Usa o seu estágio leve de produção
+          push: true
+          # Usamos o HASH do commit como TAG da imagem. Isso é uma boa prática sênior 
+          # para rastrear exatamente qual código está rodando em produção.
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/ticketon-backend:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/ticketon-backend:latest
