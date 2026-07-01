@@ -152,7 +152,7 @@ resource "aws_launch_template" "api_lt" {
       -e DATABASE_USERNAME='${var.db_user}' \
       -e DATABASE_PASSWORD='${var.db_password}' \
       -e DATABASE_NAME='${var.db_name}' \
-      migueel/ticketon-backend:${var.docker_image_tag}
+      migueljcdev/ticketon-backend:${var.docker_image_tag}
   EOF
   )
 
@@ -187,5 +187,12 @@ resource "aws_autoscaling_group" "api_asg" {
       min_healthy_percentage = 50
     }
     triggers = ["tag"]
+  }
+
+  # Nomeia as instâncias criadas pelo ASG (senão nascem sem tag Name)
+  tag {
+    key                 = "Name"
+    value               = "ticketon-api-${var.ambiente}"
+    propagate_at_launch = true
   }
 }

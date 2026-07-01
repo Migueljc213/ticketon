@@ -80,17 +80,38 @@
 #   value = module.banco_prod.endereco_banco
 # }
 
+# ==========================================
+# 1. BUSCA AUTOMÁTICA DE REDE (DATA SOURCES)
+# ==========================================
+
+# Pergunta à AWS: "Qual é o ID da minha VPC Padrão?"
+data "aws_vpc" "default" {
+  default = true
+}
+
+# Pergunta à AWS: "Quais são os IDs de todas as subnets dessa VPC?"
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+# ==========================================
+# 2. MÓDULO BACKEND (ASG + ALB)
+# ==========================================
+
 module "backend_prod" {
   source = "../../modules/backend_node"
 
   ambiente       = "prod"
   tipo_instancia = "t3.micro"
-  nome_chave_ssh = "ticketon-prod-key"
+  nome_chave_ssh = "tcc-tickton-prod"
   
-  # Dados de Rede (Substitua pelos dados reais da sua VPC da AWS)
-  id_vpc           = "vpc-0123456789abcdef0"
-  ids_subredes_ec2 = ["subnet-027714ec464b97fcb"]
-  ids_subredes_alb = ["subnet-027714ec464b97fcb", "subnet-outrasubnetdaoutra_az"]
+  # Agora injetamos os IDs dinâmicos que o Terraform descobriu sozinho!
+  id_vpc           = data.aws_vpc.default.id
+  ids_subredes_ec2 = data.aws_subnets.default.ids
+  ids_subredes_alb = data.aws_subnets.default.ids # ALB usa todas as subnets disponíveis
 
   # Dados do Banco de Dados Gerenciado (RDS)
   db_host     = module.banco_prod.endereco_banco
@@ -98,9 +119,31 @@ module "backend_prod" {
   db_password = "SenhaSuperForte123!"
   db_name     = "ticketon"
 
-  # Esta tag será atualizada automaticamente ou manualmente quando quiser mudar a versão
+  # A tag do DockerHub (Que depois o GitHub Actions vai atualizar)
   docker_image_tag = "latest"
 }
+
+# ==========================================
+# 3. FIREWALL EXCLUSIVO PARA O BANCO DE DADOS
+# ==========================================
+
+resource "aws_security_group" "rds_sg_prod_v2" {
+  name        = "ticketon-rds-sg-prod-v2" # Nome V2 para não dar conflito com o antigo
+  description = "Permite acesso do ASG ao banco MySQL"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    # REGRA SÊNIOR: Só deixa entrar quem vier do Security Group dinâmico das EC2 do ASG
+    security_groups = [module.backend_prod.ec2_security_group_id]
+  }
+}
+
+# ==========================================
+# 4. MÓDULO DO BANCO DE DADOS (RDS)
+# ==========================================
 
 module "banco_prod" {
   source = "../../modules/database"
@@ -110,10 +153,15 @@ module "banco_prod" {
   usuario_banco        = "admin"
   senha_banco          = "SenhaSuperForte123!"
   
-  # REGRA SÊNIOR: Liberamos o banco APENAS para o Security Group dinâmico das EC2 do ASG
-  ids_grupos_seguranca = [module.backend_prod.ec2_security_group_id]
+  # Conecta o RDS ao novo Firewall V2
+  ids_grupos_seguranca = [aws_security_group.rds_sg_prod_v2.id]
 }
 
+# ==========================================
+# 5. OUTPUTS (A URL FINAL)
+# ==========================================
+
 output "url_final_da_api" {
-  value = module.backend_prod.alb_dns_name
+  description = "Copie essa URL e cole no NEXT_PUBLIC_API_URL da Vercel"
+  value       = module.backend_prod.alb_dns_name
 }
