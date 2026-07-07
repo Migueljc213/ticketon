@@ -9,6 +9,7 @@ import Order from 'src/orders/domain/entity/Order.entity';
 import OrderItem from 'src/orders/domain/entity/OrderItem.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
 import { MailerModule } from 'src/mailer/mailer.module';
+import BusinessMetricsModule from 'src/common/metrics/business-metrics.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MailerModule } from 'src/mailer/mailer.module';
       PurchasedTicket,
     ]),
     MailerModule,
+    BusinessMetricsModule,
   ],
   controllers: [PaymentController],
   providers: [

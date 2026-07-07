@@ -3,12 +3,18 @@ import { DataSource } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import MercadoPagoConfig, { Payment as MpPayment } from 'mercadopago';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
+import { Counter } from 'prom-client';
 import IUsecase from 'src/common/interfaces/IUseCase';
 import Order from 'src/orders/domain/entity/Order.entity';
 import { OrderStatus } from 'src/orders/domain/order-status.enum';
 import PaymentEntity from '../domain/entity/Payment.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
 import { MailerService } from 'src/mailer/mailer.service';
+import {
+  CHECKOUT_TOTAL_METRIC,
+  PAYMENTS_TOTAL_METRIC,
+} from 'src/common/metrics/business-metrics.module';
 
 export interface WebhookInput {
   type: string;
@@ -31,6 +37,10 @@ export default class HandleWebhookUseCase implements IUsecase<
     private readonly dataSource: DataSource,
     private readonly config: ConfigService,
     private readonly mailerService: MailerService,
+    @InjectMetric(PAYMENTS_TOTAL_METRIC)
+    private readonly paymentsTotal: Counter<string>,
+    @InjectMetric(CHECKOUT_TOTAL_METRIC)
+    private readonly checkoutTotal: Counter<string>,
   ) {
     const accessToken = this.config.get<string>('MP_ACCESS_TOKEN') ?? '';
     const mpConfig = new MercadoPagoConfig({ accessToken });
@@ -69,27 +79,36 @@ export default class HandleWebhookUseCase implements IUsecase<
         return { processed: false };
       }
 
+      const paymentStatus =
+        mpStatus === 'approved'
+          ? 'approved'
+          : mpStatus === 'pending'
+            ? 'pending'
+            : 'rejected';
+
       await manager.save(
         manager.create(PaymentEntity, {
           orderId,
           mpPaymentId: String(mpPayment.id),
-          status:
-            mpStatus === 'approved'
-              ? 'approved'
-              : mpStatus === 'pending'
-                ? 'pending'
-                : 'rejected',
+          status: paymentStatus,
           paymentMethod,
           amount: Number(mpPayment.transaction_amount ?? 0),
           rawResponse: mpPayment as unknown as object,
         }),
       );
 
+      this.paymentsTotal.inc({
+        status: paymentStatus,
+        payment_method: paymentMethod ?? 'unknown',
+      });
+
       if (mpStatus === 'approved') {
         await manager.update(Order, orderId, {
           status: OrderStatus.PAID,
           mpPaymentId: String(mpPayment.id),
         });
+
+        this.checkoutTotal.inc({ status: 'completed' });
 
         const createdTickets: PurchasedTicket[] = [];
         for (const item of order.items) {

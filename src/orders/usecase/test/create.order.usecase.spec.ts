@@ -11,6 +11,7 @@ describe('CreateOrderUseCase', () => {
   let fakeTicketRepository: FakeTicketRepository;
   let mockDataSource: any;
   let mockMercadoPagoService: any;
+  let mockCheckoutTotal: any;
 
   beforeEach(() => {
     fakeTicketRepository = new FakeTicketRepository();
@@ -59,9 +60,12 @@ describe('CreateOrderUseCase', () => {
       }),
     };
 
+    mockCheckoutTotal = { inc: jest.fn() };
+
     createOrderUseCase = new CreateOrderUseCase(
       mockDataSource,
       mockMercadoPagoService,
+      mockCheckoutTotal,
     );
   });
 

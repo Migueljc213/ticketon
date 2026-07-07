@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
+import { Counter } from 'prom-client';
 import IUsecase from 'src/common/interfaces/IUseCase';
+import { CHECKOUT_TOTAL_METRIC } from 'src/common/metrics/business-metrics.module';
 import CreateOrderUseCaseInput from './dto/input/create.order.usecase.input';
 import CreateOrderUseCaseOutput from './dto/output/create.order.usecase.output';
 import Order from '../domain/entity/Order.entity';
@@ -26,6 +29,8 @@ export default class CreateOrderUseCase implements IUsecase<
   constructor(
     private readonly dataSource: DataSource,
     private readonly mercadoPagoService: MercadoPagoService,
+    @InjectMetric(CHECKOUT_TOTAL_METRIC)
+    private readonly checkoutTotal: Counter<string>,
   ) {}
 
   async run(input: CreateOrderUseCaseInput): Promise<CreateOrderUseCaseOutput> {
@@ -101,6 +106,7 @@ export default class CreateOrderUseCase implements IUsecase<
         customerNeighborhood: input.customerNeighborhood ?? null,
       });
       await manager.save(order);
+      this.checkoutTotal.inc({ status: 'started' });
 
       for (const item of input.items) {
         const ticket = tickets.find((t) => t.id === item.ticketId)!;
@@ -122,6 +128,7 @@ export default class CreateOrderUseCase implements IUsecase<
 
       if (totalAmount === 0) {
         await manager.update(Order, order.id, { status: OrderStatus.PAID });
+        this.checkoutTotal.inc({ status: 'completed' });
 
         let ticketCount = 0;
         for (const item of input.items) {

@@ -17,11 +17,13 @@ import {
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
 import PaymentModule from 'src/payments/payment.module';
+import BusinessMetricsModule from 'src/common/metrics/business-metrics.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, Ticket, PurchasedTicket]),
     PaymentModule,
+    BusinessMetricsModule,
   ],
   controllers: [OrderController],
   providers: [

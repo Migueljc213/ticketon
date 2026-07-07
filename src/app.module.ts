@@ -36,6 +36,8 @@ import EventConsumptionRecordModule from './event-consumption-records/event-cons
 import EventConsumptionRecord from './event-consumption-records/domain/entity/EventConsumptionRecord.entity';
 import BankAccountModule from './bank-accounts/bank-account.module';
 import BankAccount from './bank-accounts/domain/entity/BankAccount.entity';
+import MetricsModule from './common/metrics/metrics.module';
+import OrganizerStoreModule from './organizer-store/organizer-store.module';
 
 @Module({
   controllers: [AppController],
@@ -85,8 +87,10 @@ import BankAccount from './bank-accounts/domain/entity/BankAccount.entity';
     EventCollaboratorModule,
     MailerModule,
     NotificationsModule,
+    OrganizerStoreModule,
     EventConsumptionRecordModule,
     BankAccountModule,
+    MetricsModule,
   ],
   providers: [
     SeedService,

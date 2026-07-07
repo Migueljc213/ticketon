@@ -6,9 +6,12 @@ import {
 } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, LessThan } from 'typeorm';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
+import { Counter } from 'prom-client';
 import Order from '../domain/entity/Order.entity';
 import { OrderStatus } from '../domain/order-status.enum';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
+import { CHECKOUT_TOTAL_METRIC } from 'src/common/metrics/business-metrics.module';
 
 @Injectable()
 export default class ReleaseExpiredOrdersService
@@ -21,6 +24,8 @@ export default class ReleaseExpiredOrdersService
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
+    @InjectMetric(CHECKOUT_TOTAL_METRIC)
+    private readonly checkoutTotal: Counter<string>,
   ) {}
 
   onModuleInit(): void {
@@ -91,6 +96,7 @@ export default class ReleaseExpiredOrdersService
         }
 
         await manager.update(Order, order.id, { status: OrderStatus.EXPIRED });
+        this.checkoutTotal.inc({ status: 'abandoned' });
         this.logger.debug(
           `Pedido #${order.id} expirado — ${order.items.length} lote(s) com estoque restaurado`,
         );
