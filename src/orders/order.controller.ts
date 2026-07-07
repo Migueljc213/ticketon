@@ -19,6 +19,7 @@ import {
   CreateOrderToken,
   FindOrderByIdToken,
   FindOrdersByUserToken,
+  GetParticipantsListToken,
 } from './order.token';
 import type IUsecase from 'src/common/interfaces/IUseCase';
 import CreateOrderUseCaseInput from './usecase/dto/input/create.order.usecase.input';
@@ -27,6 +28,8 @@ import FindOrderByIdUseCaseInput from './usecase/dto/input/find.order.by.id.usec
 import FindOrderByIdUseCaseOutput from './usecase/dto/output/find.order.by.id.usecase.output';
 import FindOrdersByUserUseCaseInput from './usecase/dto/input/find.orders.by.user.usecase.input';
 import FindOrdersByUserUseCaseOutput from './usecase/dto/output/find.orders.by.user.usecase.output';
+import GetParticipantsListUseCaseInput from './usecase/dto/input/get.participants.list.usecase.input';
+import GetParticipantsListUseCaseOutput from './usecase/dto/output/get.participants.list.usecase.output';
 import CreateOrderInputDto from './external/dto/create.order.input.dto';
 
 interface AuthRequest extends Request {
@@ -53,6 +56,11 @@ export default class OrderController {
     private readonly findOrdersByUser: IUsecase<
       FindOrdersByUserUseCaseInput,
       FindOrdersByUserUseCaseOutput
+    >,
+    @Inject(GetParticipantsListToken)
+    private readonly getParticipantsList: IUsecase<
+      GetParticipantsListUseCaseInput,
+      GetParticipantsListUseCaseOutput
     >,
     private readonly dataSource: DataSource,
   ) {}
@@ -88,6 +96,14 @@ export default class OrderController {
     return { totalTickets, checkedIn, revenue };
   }
 
+  @Get('participants/event/:eventId')
+  async participants(@Param('eventId', ParseIntPipe) eventId: number) {
+    this.logger.log(`GET /orders/participants/event/${eventId}`);
+    return this.getParticipantsList.run(
+      new GetParticipantsListUseCaseInput(eventId),
+    );
+  }
+
   @Post()
   async create(@Body() body: CreateOrderInputDto, @Req() req: AuthRequest) {
     this.logger.log(`POST /orders - user ${req.user.id}`);
@@ -96,9 +112,6 @@ export default class OrderController {
         userId: req.user.id,
         items: body.items,
         backUrl: body.backUrl,
-        customerGender: body.customerGender,
-        customerAge: body.customerAge,
-        customerNeighborhood: body.customerNeighborhood,
       }),
     );
   }

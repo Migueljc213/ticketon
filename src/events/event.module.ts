@@ -72,5 +72,6 @@ import OrderModule from 'src/orders/order.module';
       useClass: FindEventPostsByEventIdUseCase,
     },
   ],
+  exports: [EventRepositoryToken],
 })
 export default class EventModule {}

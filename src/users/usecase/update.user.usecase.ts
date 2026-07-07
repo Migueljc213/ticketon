@@ -42,6 +42,7 @@ export default class UpdateUserUseCase implements IUsecase<
     if (input.age !== undefined) updateData.age = input.age;
     if (input.neighborhood !== undefined) updateData.neighborhood = input.neighborhood;
     if (input.bankInfo !== undefined) updateData.bankInfo = input.bankInfo;
+    if (input.role !== undefined) updateData.role = input.role;
 
     if (input.password !== undefined) {
       const saltRounds = 10;

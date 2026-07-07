@@ -18,6 +18,11 @@ describe('CreateOrderUseCase', () => {
     let idCounter = 1;
 
     const mockManager = {
+      findOne: jest.fn().mockResolvedValue({
+        id: TEST_CONSTANTS.IDS.DEFAULT_USER_ID,
+        name: 'Test User',
+        email: 'test@example.com',
+      }),
       createQueryBuilder: (_Entity: any, _alias: string) => ({
         setLock: jest.fn().mockReturnThis(),
         whereInIds: jest.fn().mockReturnThis(),

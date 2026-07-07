@@ -38,10 +38,13 @@ import FindUserByIdUseCaseInput from './usecase/dto/input/find.user.by.id.usecas
 import FindUserByIdUseCaseOutput from './usecase/dto/output/find.user.by.id.usecase.output';
 import FindAllUsersUseCaseOutput from './usecase/dto/output/find.all.users.usecase.output';
 import UpdateUserUseCaseInputDto from './external/dto/update.user.usecase.input.dto';
+import UpdateUserRoleInputDto from './external/dto/update.user.role.input.dto';
 import UpdateUserUseCaseInput from './usecase/dto/input/update.user.usecase.input';
 import UpdateUserUseCaseOutput from './usecase/dto/output/update.user.usecase.output';
 import DeleteUserUseCaseInput from './usecase/dto/input/delete.user.usecase.input';
 import JwtAuthGuard from 'src/auth/guards/jwt-auth.guard';
+import RolesGuard from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @SkipThrottle() // rotas de leitura autenticadas não precisam de throttle
 @Controller('/users')
@@ -141,6 +144,23 @@ export default class UserController {
     try {
       this.logger.log(`PATCH /users/${id} body: ${JSON.stringify(input)}`);
       const useCaseInput = new UpdateUserUseCaseInput(id, input);
+      return await this.updateUser.run(useCaseInput);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Patch(':id/role')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @HttpCode(HttpStatus.OK)
+  async updateUserRole(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: UpdateUserRoleInputDto,
+  ): Promise<UpdateUserUseCaseOutput> {
+    try {
+      this.logger.log(`PATCH /users/${id}/role → ${input.role}`);
+      const useCaseInput = new UpdateUserUseCaseInput(id, { role: input.role });
       return await this.updateUser.run(useCaseInput);
     } catch (e) {
       throw new BadRequestException(e.message);

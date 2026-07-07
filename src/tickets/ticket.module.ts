@@ -18,9 +18,10 @@ import FindAllTicketsUseCase from './usecase/find.all.tickets.usecase';
 import FindTicketsByEventIdUseCase from './usecase/find.tickets.by.event.id.usecase';
 import UpdateTicketUseCase from './usecase/update.ticket.usecase';
 import DeleteTicketUseCase from './usecase/delete.ticket.usecase';
+import EventModule from 'src/events/event.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Ticket])],
+  imports: [TypeOrmModule.forFeature([Ticket]), EventModule],
   controllers: [TicketController],
   providers: [
     {

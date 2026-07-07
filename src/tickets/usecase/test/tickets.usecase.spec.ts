@@ -20,6 +20,15 @@ const makeTicketInput = (overrides: Partial<CreateTicketUseCaseInput> = {}): Cre
     ...overrides,
   } as any);
 
+const fakeEventRepo = {
+  findById: async (id: number) => ({
+    id,
+    maxAttendees: null,
+    eventDate: new Date('2030-01-01T00:00:00'),
+    eventEndDate: null,
+  }),
+} as any;
+
 describe('Ticket Use Cases', () => {
   let fakeRepo: FakeTicketRepository;
 
@@ -31,7 +40,7 @@ describe('Ticket Use Cases', () => {
 
   describe('CreateTicketUseCase', () => {
     it('should create a ticket and return it with an id', async () => {
-      const useCase = new CreateTicketUseCase(fakeRepo);
+      const useCase = new CreateTicketUseCase(fakeRepo, fakeEventRepo);
       const result = await useCase.run(makeTicketInput());
 
       expect(result.id).toBe(1);
@@ -43,7 +52,7 @@ describe('Ticket Use Cases', () => {
     });
 
     it('should create a free ticket with price zero', async () => {
-      const useCase = new CreateTicketUseCase(fakeRepo);
+      const useCase = new CreateTicketUseCase(fakeRepo, fakeEventRepo);
       const result = await useCase.run(makeTicketInput({ price: 0, ticketType: 'free' }));
 
       expect(result.price).toBe(0);
@@ -51,7 +60,7 @@ describe('Ticket Use Cases', () => {
     });
 
     it('should auto-increment ids for multiple tickets', async () => {
-      const useCase = new CreateTicketUseCase(fakeRepo);
+      const useCase = new CreateTicketUseCase(fakeRepo, fakeEventRepo);
       const a = await useCase.run(makeTicketInput({ name: 'Pista' }));
       const b = await useCase.run(makeTicketInput({ name: 'VIP' }));
 
@@ -60,7 +69,7 @@ describe('Ticket Use Cases', () => {
     });
 
     it('should create multiple tickets for the same event', async () => {
-      const useCase = new CreateTicketUseCase(fakeRepo);
+      const useCase = new CreateTicketUseCase(fakeRepo, fakeEventRepo);
       const findUC = new FindTicketsByEventIdUseCase(fakeRepo);
 
       await useCase.run(makeTicketInput({ name: 'Pista' }));
@@ -81,7 +90,7 @@ describe('Ticket Use Cases', () => {
     });
 
     it('should only return tickets for the requested event', async () => {
-      const createUC = new CreateTicketUseCase(fakeRepo);
+      const createUC = new CreateTicketUseCase(fakeRepo, fakeEventRepo);
       const findUC = new FindTicketsByEventIdUseCase(fakeRepo);
 
       await createUC.run(makeTicketInput({ eventId: 10, name: 'Evento 10 - Pista' }));
@@ -97,7 +106,7 @@ describe('Ticket Use Cases', () => {
 
   describe('UpdateTicketUseCase', () => {
     it('should update ticket name and price', async () => {
-      const createUC = new CreateTicketUseCase(fakeRepo);
+      const createUC = new CreateTicketUseCase(fakeRepo, fakeEventRepo);
       const updateUC = new UpdateTicketUseCase(fakeRepo);
 
       await createUC.run(makeTicketInput());
@@ -108,7 +117,7 @@ describe('Ticket Use Cases', () => {
     });
 
     it('should deactivate a ticket', async () => {
-      const createUC = new CreateTicketUseCase(fakeRepo);
+      const createUC = new CreateTicketUseCase(fakeRepo, fakeEventRepo);
       const updateUC = new UpdateTicketUseCase(fakeRepo);
 
       await createUC.run(makeTicketInput({ isActive: true }));
@@ -127,7 +136,7 @@ describe('Ticket Use Cases', () => {
 
   describe('DeleteTicketUseCase', () => {
     it('should delete an existing ticket', async () => {
-      const createUC = new CreateTicketUseCase(fakeRepo);
+      const createUC = new CreateTicketUseCase(fakeRepo, fakeEventRepo);
       const deleteUC = new DeleteTicketUseCase(fakeRepo);
       const findUC = new FindTicketsByEventIdUseCase(fakeRepo);
 

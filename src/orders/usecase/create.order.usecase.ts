@@ -17,6 +17,7 @@ import OrderItem from '../domain/entity/OrderItem.entity';
 import { OrderStatus } from '../domain/order-status.enum';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
+import User from 'src/users/domain/entity/User.entity';
 import MercadoPagoService from 'src/payments/external/mercadopago.service';
 
 @Injectable()
@@ -93,6 +94,10 @@ export default class CreateOrderUseCase implements IUsecase<
 
       const eventId = tickets[0].eventId;
 
+      const buyer = await manager.findOne(User, {
+        where: { id: input.userId },
+      });
+
       const order = manager.create(Order, {
         userId: input.userId,
         eventId,
@@ -101,9 +106,8 @@ export default class CreateOrderUseCase implements IUsecase<
         expiresAt,
         mpPreferenceId: null,
         mpPaymentId: null,
-        customerGender: input.customerGender ?? null,
-        customerAge: input.customerAge ?? null,
-        customerNeighborhood: input.customerNeighborhood ?? null,
+        customerName: buyer?.name ?? null,
+        customerEmail: buyer?.email ?? null,
       });
       await manager.save(order);
       this.checkoutTotal.inc({ status: 'started' });
