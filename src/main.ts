@@ -13,13 +13,22 @@ async function bootstrap() {
 
   app.use(helmet());
 
+  const extraOrigins = (process.env.CORS_EXTRA_ORIGINS ?? '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
   app.enableCors({
     origin: (origin, callback) => {
       const allowed = [
         /^https?:\/\/localhost(:\d+)?$/,
         /^https:\/\/.*\.vercel\.app$/,
       ];
-      if (!origin || allowed.some((r) => r.test(origin))) {
+      if (
+        !origin ||
+        allowed.some((r) => r.test(origin)) ||
+        extraOrigins.includes(origin)
+      ) {
         callback(null, true);
       } else {
         callback(new Error(`CORS blocked: ${origin}`));
