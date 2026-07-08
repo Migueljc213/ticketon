@@ -32,6 +32,7 @@ interface TicketInfo {
   orderId: number;
   qrCode: string;
   status: string;
+  purchasedAt: string;
   usedAt: string | null;
   buyer: {
     id: number;
@@ -174,6 +175,7 @@ export default class PurchasedTicketController {
       orderId: pt.orderId,
       qrCode: pt.qrCode,
       status: pt.status,
+      purchasedAt: pt.createdAt.toISOString(),
       usedAt: pt.usedAt ? pt.usedAt.toISOString() : null,
       buyer: {
         id: pt.userId,
