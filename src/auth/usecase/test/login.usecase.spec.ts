@@ -19,11 +19,13 @@ const makeUserRepo = (user: Record<string, unknown> | null) => ({
   findByEmail: jest.fn().mockResolvedValue(user),
 });
 
+const makeLoginAttemptsCounter = () => ({ inc: jest.fn() });
+
 describe('LoginUseCase', () => {
   describe('successful login', () => {
     it('should return access token and user data on valid credentials', async () => {
       const user = await makeHashedUser();
-      const loginUC = new LoginUseCase(makeUserRepo(user) as any, makeJwtService() as any);
+      const loginUC = new LoginUseCase(makeUserRepo(user) as any, makeJwtService() as any, makeLoginAttemptsCounter() as any);
       const result = await loginUC.run({ email: 'joao@test.com', password: 'senha123' });
 
       expect(result.accessToken).toBe('mock-jwt-token');
@@ -36,7 +38,7 @@ describe('LoginUseCase', () => {
     it('should call signAsync with the correct JWT payload', async () => {
       const user = await makeHashedUser();
       const jwtService = makeJwtService();
-      const loginUC = new LoginUseCase(makeUserRepo(user) as any, jwtService as any);
+      const loginUC = new LoginUseCase(makeUserRepo(user) as any, jwtService as any, makeLoginAttemptsCounter() as any);
       await loginUC.run({ email: 'joao@test.com', password: 'senha123' });
 
       expect(jwtService.signAsync).toHaveBeenCalledWith(
@@ -48,7 +50,7 @@ describe('LoginUseCase', () => {
     it('should use 30d expiry for participant accounts', async () => {
       const user = await makeHashedUser({ role: 'participant' });
       const jwtService = makeJwtService();
-      const loginUC = new LoginUseCase(makeUserRepo(user) as any, jwtService as any);
+      const loginUC = new LoginUseCase(makeUserRepo(user) as any, jwtService as any, makeLoginAttemptsCounter() as any);
       await loginUC.run({ email: 'joao@test.com', password: 'senha123' });
 
       expect(jwtService.signAsync).toHaveBeenCalledWith(
@@ -60,7 +62,7 @@ describe('LoginUseCase', () => {
     it('should use 1d expiry for organizer accounts', async () => {
       const user = await makeHashedUser({ role: 'organizer', email: 'org@test.com' });
       const jwtService = makeJwtService();
-      const loginUC = new LoginUseCase(makeUserRepo(user) as any, jwtService as any);
+      const loginUC = new LoginUseCase(makeUserRepo(user) as any, jwtService as any, makeLoginAttemptsCounter() as any);
       await loginUC.run({ email: 'org@test.com', password: 'senha123' });
 
       expect(jwtService.signAsync).toHaveBeenCalledWith(
@@ -72,7 +74,7 @@ describe('LoginUseCase', () => {
 
   describe('authentication errors', () => {
     it('should throw "Invalid credentials" when user does not exist', async () => {
-      const loginUC = new LoginUseCase(makeUserRepo(null) as any, makeJwtService() as any);
+      const loginUC = new LoginUseCase(makeUserRepo(null) as any, makeJwtService() as any, makeLoginAttemptsCounter() as any);
       await expect(
         loginUC.run({ email: 'naoexiste@test.com', password: 'qualquer' }),
       ).rejects.toThrow('Invalid credentials');
@@ -80,7 +82,7 @@ describe('LoginUseCase', () => {
 
     it('should throw "Invalid credentials" when password is wrong', async () => {
       const user = await makeHashedUser();
-      const loginUC = new LoginUseCase(makeUserRepo(user) as any, makeJwtService() as any);
+      const loginUC = new LoginUseCase(makeUserRepo(user) as any, makeJwtService() as any, makeLoginAttemptsCounter() as any);
       await expect(
         loginUC.run({ email: 'joao@test.com', password: 'senhaerrada' }),
       ).rejects.toThrow('Invalid credentials');
@@ -91,8 +93,8 @@ describe('LoginUseCase', () => {
       const repoWithUser = makeUserRepo(user);
       const repoEmpty = makeUserRepo(null);
 
-      const ucWithUser = new LoginUseCase(repoWithUser as any, makeJwtService() as any);
-      const ucEmpty = new LoginUseCase(repoEmpty as any, makeJwtService() as any);
+      const ucWithUser = new LoginUseCase(repoWithUser as any, makeJwtService() as any, makeLoginAttemptsCounter() as any);
+      const ucEmpty = new LoginUseCase(repoEmpty as any, makeJwtService() as any, makeLoginAttemptsCounter() as any);
 
       const wrongPassErr = await ucWithUser.run({ email: 'joao@test.com', password: 'x' }).catch(e => e.message);
       const noEmailErr = await ucEmpty.run({ email: 'x@x.com', password: 'x' }).catch(e => e.message);

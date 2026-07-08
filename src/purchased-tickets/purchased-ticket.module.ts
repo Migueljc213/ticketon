@@ -7,9 +7,13 @@ import { PurchasedTicketRepositoryToken } from './purchased-ticket.token';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import Event from 'src/events/domain/entity/Event.entity';
 import User from 'src/users/domain/entity/User.entity';
+import BusinessMetricsModule from 'src/common/metrics/business-metrics.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PurchasedTicket, Ticket, Event, User])],
+  imports: [
+    TypeOrmModule.forFeature([PurchasedTicket, Ticket, Event, User]),
+    BusinessMetricsModule,
+  ],
   controllers: [PurchasedTicketController],
   providers: [
     {

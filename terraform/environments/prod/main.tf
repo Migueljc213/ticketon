@@ -112,7 +112,7 @@ module "backend_prod" {
   id_vpc           = data.aws_vpc.default.id
   ids_subredes_ec2 = data.aws_subnets.default.ids
   ids_subredes_alb = data.aws_subnets.default.ids # ALB usa todas as subnets disponíveis
-
+  nome = "ticketon-prod"
   # Dados do Banco de Dados Gerenciado (RDS)
   db_host     = module.banco_prod.endereco_banco
   db_user     = "admin"

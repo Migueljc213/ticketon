@@ -12,6 +12,8 @@ import {
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Request } from 'express';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
+import { Counter } from 'prom-client';
 import JwtAuthGuard from 'src/auth/guards/jwt-auth.guard';
 import { PurchasedTicketRepositoryToken } from './purchased-ticket.token';
 import type IPurchasedTicketRepository from './domain/interface/purchased-ticket.repository.interface';
@@ -19,6 +21,7 @@ import PurchasedTicket from './domain/entity/PurchasedTicket.entity';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
 import Event from 'src/events/domain/entity/Event.entity';
 import User from 'src/users/domain/entity/User.entity';
+import { CHECKIN_VALIDATIONS_TOTAL_METRIC } from 'src/common/metrics/business-metrics.module';
 
 interface AuthRequest extends Request {
   user: { id: number; email: string };
@@ -61,6 +64,8 @@ export default class PurchasedTicketController {
     private readonly repository: IPurchasedTicketRepository,
     @InjectDataSource()
     private readonly dataSource: DataSource,
+    @InjectMetric(CHECKIN_VALIDATIONS_TOTAL_METRIC)
+    private readonly checkinValidations: Counter<string>,
   ) {}
 
   @Get('my')
@@ -82,11 +87,13 @@ export default class PurchasedTicketController {
     const ticket = await this.repository.findByQrCode(qrCode);
 
     if (!ticket) {
+      this.checkinValidations.inc({ result: 'invalid' });
       throw new BadRequestException(
         'QR code inválido — ingresso não encontrado.',
       );
     }
     if (ticket.status === 'used') {
+      this.checkinValidations.inc({ result: 'already_used' });
       const info = await this.buildTicketInfo(qrCode);
       throw new BadRequestException({
         message: 'Ingresso já utilizado.',
@@ -95,6 +102,7 @@ export default class PurchasedTicketController {
       });
     }
     if (ticket.status === 'cancelled') {
+      this.checkinValidations.inc({ result: 'cancelled' });
       throw new BadRequestException('Ingresso cancelado.');
     }
 
@@ -113,6 +121,7 @@ export default class PurchasedTicketController {
       [req.user.id, qrCode],
     );
 
+    this.checkinValidations.inc({ result: 'valid' });
     this.logger.log(`Ingresso ${qrCode} validado por userId=${req.user.id}`);
     return this.buildTicketInfo(qrCode);
   }

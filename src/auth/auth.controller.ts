@@ -76,7 +76,7 @@ export default class AuthController {
 
   private async handleSocialLogin(profile: SocialProfile): Promise<string> {
     const frontendUrl = this.config.get<string>('FRONTEND_URL') ?? 'http://localhost:3002';
-
+    console.log(frontendUrl)
     if (!profile.email) {
       this.logger.warn(`Social login without email: provider=${profile.provider}`);
       return `${frontendUrl}/login?error=no_email`;

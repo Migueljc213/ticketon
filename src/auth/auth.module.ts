@@ -13,11 +13,13 @@ import { LoginUseCaseToken } from './auth.token';
 import JwtStrategy from './strategies/jwt.strategy';
 import GoogleStrategy from './strategies/google.strategy';
 import FacebookStrategy from './strategies/facebook.strategy';
+import BusinessMetricsModule from 'src/common/metrics/business-metrics.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     PassportModule,
+    BusinessMetricsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
