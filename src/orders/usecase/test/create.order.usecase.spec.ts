@@ -3,6 +3,7 @@ import FakeTicketRepository from 'src/tickets/external/repository/fakes/fake.tic
 import Order from 'src/orders/domain/entity/Order.entity';
 import OrderItem from 'src/orders/domain/entity/OrderItem.entity';
 import Ticket from 'src/tickets/domain/entity/Ticket.entity';
+import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket.entity';
 import { TicketTestBuilder } from './helpers/test-builders';
 import { TEST_CONSTANTS } from './helpers/test-constants';
 
@@ -12,10 +13,12 @@ describe('CreateOrderUseCase', () => {
   let mockDataSource: any;
   let mockMercadoPagoService: any;
   let mockCheckoutTotal: any;
+  let alreadyOwnedFreeTickets: number;
 
   beforeEach(() => {
     fakeTicketRepository = new FakeTicketRepository();
     let idCounter = 1;
+    alreadyOwnedFreeTickets = 0;
 
     const mockManager = {
       findOne: jest.fn().mockResolvedValue({
@@ -23,13 +26,28 @@ describe('CreateOrderUseCase', () => {
         name: 'Test User',
         email: 'test@example.com',
       }),
-      createQueryBuilder: (_Entity: any, _alias: string) => ({
-        setLock: jest.fn().mockReturnThis(),
-        whereInIds: jest.fn().mockReturnThis(),
-        getMany: jest
-          .fn()
-          .mockImplementation(async () => fakeTicketRepository.findAll()),
-      }),
+      createQueryBuilder: (Entity: any, _alias: string) => {
+        if (Entity === PurchasedTicket) {
+          return {
+            innerJoin: jest.fn().mockReturnThis(),
+            where: jest.fn().mockReturnThis(),
+            andWhere: jest.fn().mockReturnThis(),
+            select: jest.fn().mockReturnThis(),
+            getRawOne: jest
+              .fn()
+              .mockImplementation(async () => ({
+                count: String(alreadyOwnedFreeTickets),
+              })),
+          };
+        }
+        return {
+          setLock: jest.fn().mockReturnThis(),
+          whereInIds: jest.fn().mockReturnThis(),
+          getMany: jest
+            .fn()
+            .mockImplementation(async () => fakeTicketRepository.findAll()),
+        };
+      },
       create: jest
         .fn()
         .mockImplementation((Entity: any, data: any) =>
@@ -124,6 +142,71 @@ describe('CreateOrderUseCase', () => {
 
       const updatedTicket = await fakeTicketRepository.findById(ticket.id);
       expect(updatedTicket?.quantitySold).toBe(quantity);
+    });
+  });
+
+  describe('free tickets', () => {
+    it('should bypass payment (no Mercado Pago) when all items are free', async () => {
+      const ticket = new TicketTestBuilder()
+        .withEventId(TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID)
+        .withPrice(0)
+        .withQuantityAvailable(10)
+        .asActive()
+        .build();
+      await fakeTicketRepository.create(ticket);
+
+      const result = await createOrderUseCase.run({
+        userId: TEST_CONSTANTS.IDS.DEFAULT_USER_ID,
+        eventId: TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID,
+        customerName: TEST_CONSTANTS.CUSTOMERS.DEFAULT_NAME,
+        customerEmail: TEST_CONSTANTS.CUSTOMERS.DEFAULT_EMAIL,
+        items: [{ ticketId: ticket.id, quantity: 2 }],
+      } as any);
+
+      expect(result.bypass).toBe(true);
+      expect(result.totalAmount).toBe(0);
+      expect(mockMercadoPagoService.createPreference).not.toHaveBeenCalled();
+    });
+
+    it('should reject when requested quantity exceeds the free-ticket cap per user/event', async () => {
+      const ticket = new TicketTestBuilder()
+        .withEventId(TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID)
+        .withPrice(0)
+        .withQuantityAvailable(50)
+        .asActive()
+        .build();
+      await fakeTicketRepository.create(ticket);
+
+      await expect(
+        createOrderUseCase.run({
+          userId: TEST_CONSTANTS.IDS.DEFAULT_USER_ID,
+          eventId: TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID,
+          customerName: TEST_CONSTANTS.CUSTOMERS.DEFAULT_NAME,
+          customerEmail: TEST_CONSTANTS.CUSTOMERS.DEFAULT_EMAIL,
+          items: [{ ticketId: ticket.id, quantity: 5 }],
+        } as any),
+      ).rejects.toThrow();
+    });
+
+    it('should reject when the user already owns free tickets up to the cap for this event', async () => {
+      const ticket = new TicketTestBuilder()
+        .withEventId(TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID)
+        .withPrice(0)
+        .withQuantityAvailable(50)
+        .asActive()
+        .build();
+      await fakeTicketRepository.create(ticket);
+      alreadyOwnedFreeTickets = 4;
+
+      await expect(
+        createOrderUseCase.run({
+          userId: TEST_CONSTANTS.IDS.DEFAULT_USER_ID,
+          eventId: TEST_CONSTANTS.IDS.DEFAULT_EVENT_ID,
+          customerName: TEST_CONSTANTS.CUSTOMERS.DEFAULT_NAME,
+          customerEmail: TEST_CONSTANTS.CUSTOMERS.DEFAULT_EMAIL,
+          items: [{ ticketId: ticket.id, quantity: 1 }],
+        } as any),
+      ).rejects.toThrow();
     });
   });
 

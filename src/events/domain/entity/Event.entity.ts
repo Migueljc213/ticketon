@@ -9,8 +9,8 @@ export default class Event extends BaseEntity {
   @Column({ name: 'title', type: 'varchar', length: 255, nullable: false })
   title: string;
 
-  @Column({ name: 'description', type: 'text', nullable: false })
-  description: string;
+  @Column({ name: 'description', type: 'text', nullable: true })
+  description: string | null;
 
   @Column({ name: 'category', type: 'varchar', length: 100, nullable: false })
   category: string;

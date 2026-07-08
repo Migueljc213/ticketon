@@ -5,6 +5,7 @@ export default class UpdateOrganizerUseCaseInput extends UpdateOrganizerUseCaseI
 
   constructor(id: number, data: UpdateOrganizerUseCaseInputDto) {
     super(data);
+    Object.assign(this, data);
     this.id = id;
   }
 }

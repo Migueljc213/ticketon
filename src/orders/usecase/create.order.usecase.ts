@@ -20,6 +20,10 @@ import PurchasedTicket from 'src/purchased-tickets/domain/entity/PurchasedTicket
 import User from 'src/users/domain/entity/User.entity';
 import MercadoPagoService from 'src/payments/external/mercadopago.service';
 
+// Limite de ingressos gratuitos por pessoa, por evento (soma de todos os pedidos).
+// Evita que uma única pessoa monopolize lotes gratuitos limitados (ex: script comprando 200 de uma vez).
+const MAX_FREE_TICKETS_PER_USER_PER_EVENT = 4;
+
 @Injectable()
 export default class CreateOrderUseCase implements IUsecase<
   CreateOrderUseCaseInput,
@@ -90,9 +94,36 @@ export default class CreateOrderUseCase implements IUsecase<
         return sum + Number(ticket.price) * item.quantity;
       }, 0);
 
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-
       const eventId = tickets[0].eventId;
+
+      const freeItems = input.items.filter(
+        (item) => Number(tickets.find((t) => t.id === item.ticketId)!.price) === 0,
+      );
+      if (freeItems.length > 0) {
+        const requestedFreeQty = freeItems.reduce((sum, i) => sum + i.quantity, 0);
+
+        const { count: alreadyOwnedFree } = await manager
+          .createQueryBuilder(PurchasedTicket, 'pt')
+          .innerJoin(Ticket, 't', 't.id = pt.ticketId')
+          .where('pt.userId = :userId', { userId: input.userId })
+          .andWhere('t.eventId = :eventId', { eventId })
+          .andWhere('t.price = 0')
+          .andWhere('pt.status != :cancelled', { cancelled: 'cancelled' })
+          .select('COUNT(*)', 'count')
+          .getRawOne<{ count: string }>()
+          .then((r) => ({ count: Number(r?.count ?? 0) }));
+
+        if (alreadyOwnedFree + requestedFreeQty > MAX_FREE_TICKETS_PER_USER_PER_EVENT) {
+          const remaining = Math.max(MAX_FREE_TICKETS_PER_USER_PER_EVENT - alreadyOwnedFree, 0);
+          throw new ConflictException(
+            remaining > 0
+              ? `Ingressos gratuitos são limitados a ${MAX_FREE_TICKETS_PER_USER_PER_EVENT} por pessoa neste evento. Você já possui ${alreadyOwnedFree} e pode pegar mais ${remaining}.`
+              : `Você já atingiu o limite de ${MAX_FREE_TICKETS_PER_USER_PER_EVENT} ingressos gratuitos por pessoa neste evento.`,
+          );
+        }
+      }
+
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
       const buyer = await manager.findOne(User, {
         where: { id: input.userId },

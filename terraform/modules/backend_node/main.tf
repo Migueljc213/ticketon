@@ -2,7 +2,7 @@
 #   # Usando as variáveis (var.nome_da_variavel)
 #   ami           = var.ami_id
 #   instance_type = var.tipo_instancia
-  
+
 #   subnet_id              = var.id_subrede
 #   vpc_security_group_ids = var.ids_grupos_seguranca
 
@@ -27,8 +27,8 @@
 
 # Firewall do Load Balancer: Permite tráfego HTTP da Internet
 resource "aws_security_group" "alb_sg" {
-  name        = "ticketon-alb-sg-${var.ambiente}"
-  vpc_id      = var.id_vpc
+  name   = "ticketon-alb-sg-${var.ambiente}"
+  vpc_id = var.id_vpc
 
   ingress {
     from_port   = 80
@@ -47,8 +47,8 @@ resource "aws_security_group" "alb_sg" {
 
 # Firewall das Máquinas EC2: Proteção Máxima
 resource "aws_security_group" "ec2_sg" {
-  name        = "ticketon-ec2-sg-${var.ambiente}"
-  vpc_id      = var.id_vpc
+  name   = "ticketon-ec2-sg-${var.ambiente}"
+  vpc_id = var.id_vpc
 
   # Permite tráfego APENAS vindo do Load Balancer
   ingress {
@@ -153,6 +153,18 @@ resource "aws_launch_template" "api_lt" {
       -e DATABASE_PASSWORD='${var.db_password}' \
       -e DATABASE_NAME='${var.db_name}' \
       migueljcdev/ticketon-backend:${var.docker_image_tag}
+
+    # node-exporter: métricas de CPU/RAM/disco do host, coletadas pela instância
+    # de monitoramento via EC2 service discovery (não precisa abrir porta pro mundo,
+    # só pro Security Group da instância de monitoramento — ver environments/prod/main.tf)
+    docker run -d \
+      --name node-exporter \
+      --restart always \
+      --net="host" \
+      --pid="host" \
+      -v "/:/host:ro,rslave" \
+      prom/node-exporter:latest \
+      --path.rootfs=/host
   EOF
   )
 
@@ -168,9 +180,9 @@ resource "aws_autoscaling_group" "api_asg" {
   target_group_arns   = [aws_lb_target_group.api_tg.arn]
 
   # Definição de capacidade do cluster
-  desired_capacity          = 1 # Mantém 1 máquina rodando por padrão (Lab/Baixo Custo)
-  min_size                  = 1 # Se a máquina cair, ele sobe 1 nova imediatamente
-  max_size                  = 3 # Em pico de tráfego, pode escalar até 3 máquinas
+  desired_capacity = 1 # Mantém 1 máquina rodando por padrão (Lab/Baixo Custo)
+  min_size         = 1 # Se a máquina cair, ele sobe 1 nova imediatamente
+  max_size         = 3 # Em pico de tráfego, pode escalar até 3 máquinas
 
   health_check_type         = "ELB" # Usa o Health Check do ALB para saber se a máquina travou
   health_check_grace_period = 180   # Espera 3 minutos pro Docker compilar/ligar antes de checar

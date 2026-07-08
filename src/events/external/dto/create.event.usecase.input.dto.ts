@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsDateString,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -21,8 +22,8 @@ export default class CreateEventUseCaseInputDto extends PartialClass<CreateEvent
   title: string;
 
   @IsString()
-  @IsNotEmpty()
-  description: string;
+  @IsOptional()
+  description?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -94,4 +95,9 @@ export default class CreateEventUseCaseInputDto extends PartialClass<CreateEvent
   @IsBoolean()
   @IsOptional()
   isPublished?: boolean;
+
+  @IsString()
+  @IsOptional()
+  @IsIn(['draft', 'published', 'cancelled'])
+  status?: string;
 }

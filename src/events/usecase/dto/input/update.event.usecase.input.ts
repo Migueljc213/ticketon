@@ -5,6 +5,7 @@ export default class UpdateEventUseCaseInput extends UpdateEventUseCaseInputDto 
 
   constructor(id: number, data: UpdateEventUseCaseInputDto) {
     super(data);
+    Object.assign(this, data);
     this.id = id;
   }
 }

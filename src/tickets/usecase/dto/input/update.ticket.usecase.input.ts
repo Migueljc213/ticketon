@@ -5,6 +5,7 @@ export default class UpdateTicketUseCaseInput extends UpdateTicketUseCaseInputDt
 
   constructor(id: number, data: UpdateTicketUseCaseInputDto) {
     super(data);
+    Object.assign(this, data);
     this.id = id;
   }
 }

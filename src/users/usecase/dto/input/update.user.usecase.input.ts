@@ -7,6 +7,7 @@ export default class UpdateUserUseCaseInput extends UpdateUserUseCaseInputDto {
 
   constructor(id: number, data: UpdateUserUseCaseInputDto & { role?: UserRole }) {
     super(data);
+    Object.assign(this, data);
     this.id = id;
     this.role = data.role;
   }

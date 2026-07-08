@@ -107,12 +107,12 @@ module "backend_prod" {
   ambiente       = "prod"
   tipo_instancia = "t3.micro"
   nome_chave_ssh = "tcc-tickton-prod"
-  
+
   # Agora injetamos os IDs dinâmicos que o Terraform descobriu sozinho!
   id_vpc           = data.aws_vpc.default.id
   ids_subredes_ec2 = data.aws_subnets.default.ids
   ids_subredes_alb = data.aws_subnets.default.ids # ALB usa todas as subnets disponíveis
-  nome = "ticketon-prod"
+  nome             = "ticketon-prod"
   # Dados do Banco de Dados Gerenciado (RDS)
   db_host     = module.banco_prod.endereco_banco
   db_user     = "admin"
@@ -133,9 +133,9 @@ resource "aws_security_group" "rds_sg_prod_v2" {
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
+    from_port = 3306
+    to_port   = 3306
+    protocol  = "tcp"
     # REGRA SÊNIOR: Só deixa entrar quem vier do Security Group dinâmico das EC2 do ASG
     security_groups = [module.backend_prod.ec2_security_group_id]
   }
@@ -148,11 +148,11 @@ resource "aws_security_group" "rds_sg_prod_v2" {
 module "banco_prod" {
   source = "../../modules/database"
 
-  ambiente             = "prod"
-  nome_banco           = "ticketon"
-  usuario_banco        = "admin"
-  senha_banco          = "SenhaSuperForte123!"
-  
+  ambiente      = "prod"
+  nome_banco    = "ticketon"
+  usuario_banco = "admin"
+  senha_banco   = "SenhaSuperForte123!"
+
   # Conecta o RDS ao novo Firewall V2
   ids_grupos_seguranca = [aws_security_group.rds_sg_prod_v2.id]
 }
@@ -164,4 +164,52 @@ module "banco_prod" {
 output "url_final_da_api" {
   description = "Copie essa URL e cole no NEXT_PUBLIC_API_URL da Vercel"
   value       = module.backend_prod.alb_dns_name
+}
+
+# ==========================================
+# 6. MÓDULO DE MONITORAMENTO (PROMETHEUS + GRAFANA)
+# ==========================================
+# Instância dedicada, separada da API — se a instância da API cair, o
+# monitoramento continua de pé pra investigar o que houve.
+
+variable "grafana_admin_password" {
+  type        = string
+  description = "Senha do admin do Grafana em produção — passe via -var na hora do apply, nunca commitar aqui"
+  sensitive   = true
+}
+
+module "monitoring_prod" {
+  source = "../../modules/monitoring"
+
+  ambiente       = "prod"
+  tipo_instancia = "t3.micro"
+  nome_chave_ssh = "tcc-tickton-prod"
+
+  id_vpc     = data.aws_vpc.default.id
+  id_subrede = data.aws_subnets.default.ids[0]
+  regiao     = "us-east-1"
+
+  alb_dns_name            = module.backend_prod.alb_dns_name
+  tag_name_instancias_api = "ticketon-api-prod"
+  grafana_admin_password  = var.grafana_admin_password
+}
+
+# ==========================================
+# 7. FIREWALL: MONITORAMENTO → API (porta 9100, node-exporter)
+# ==========================================
+# Mesmo padrão do rds_sg_prod_v2 acima: libera só pro Security Group de quem
+# precisa, nunca pro mundo.
+
+resource "aws_security_group_rule" "api_allow_monitoring_node_exporter" {
+  type                     = "ingress"
+  from_port                = 9100
+  to_port                  = 9100
+  protocol                 = "tcp"
+  security_group_id        = module.backend_prod.ec2_security_group_id
+  source_security_group_id = module.monitoring_prod.monitoring_security_group_id
+}
+
+output "grafana_url" {
+  description = "URL do Grafana em produção"
+  value       = module.monitoring_prod.grafana_url
 }
